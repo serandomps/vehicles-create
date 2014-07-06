@@ -1,9 +1,13 @@
 {
     "name": "auto-add",
     "description": "auto-add component",
-    "local": ["dust", "serand"],
+    "local": [],
     "scripts": ["index.js"],
     "styles": ["styles.css"],
     "templates": ["template.html"],
-    "main": "index.js"
+    "main": "index.js",
+    "dependencies": {
+        "serandomps/dust": "master",
+        "serandomps/serand": "master"
+    }
 }
