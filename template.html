@@ -1,0 +1,118 @@
+<div class="auto-add panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Add Vehicle</h3>
+    </div>
+    <div class="panel-body">
+        <form role="form" class="auto-create">
+            <div class="form-group">
+                <!--<label>Make</label>-->
+                <select class="form-control make">
+                    <option>Honda</option>
+                    <option>Toyota</option>
+                    <option>Mazda</option>
+                    <option>Nissan</option>
+                    <option>Suzzuki</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <!--<label>Make</label>-->
+                <select class="form-control model">
+                    <option>Vezel</option>
+                    <option>Insight</option>
+                    <option>Fit</option>
+                    <option>Civic</option>
+                    <option>CR-V</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <!--<label>Make</label>-->
+                <select class="form-control year">
+                    <option>2014</option>
+                    <option>2013</option>
+                    <option>2012</option>
+                    <option>2011</option>
+                    <option>2010</option>
+                    <option>2009</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Condition</label>
+
+                <div class="options">
+                    <label class="checkbox">
+                        <input type="checkbox" value="option1">Brand New
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" value="option2">Unregistered
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" value="option3">Used
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Transmission</label>
+
+                <div class="options">
+                    <label class="checkbox">
+                        <input type="checkbox" value="option1">Automatic
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" value="option2">Manual
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" value="option3">Manumatic
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Fuel</label>
+
+                <div class="options">
+                    <label class="checkbox">
+                        <input type="checkbox" value="option1">Petrol
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" value="option2">Diesel
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" value="option3">Hybrid
+                    </label>
+                </div>
+            </div>
+            <div class="form-group mileage">
+                <label>Mileage</label>
+                <input type="text" class="form-control" placeholder="Mileage">
+            </div>
+            <div class="form-group price">
+                <label>Price</label>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control min" placeholder="Minimum">
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control max" placeholder="Maximum">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group description">
+                <label>Description</label>
+                <textarea class="form-control" rows="6"></textarea>
+            </div>
+            <div class="form-group price">
+                <span class="btn btn-success fileinput-button upload-button">
+                    <i class="glyphicon glyphicon-plus"></i>
+                    <span> Select Images...</span>
+                    <input type="file" multiple="" name="files[]" class="fileupload">
+                </span>
+
+                <div id="progress" class="progress">
+                    <div class="progress-bar progress-bar-success"></div>
+                </div>
+                <div class="files"></div>
+            </div>
+            <button type="submit" class="btn btn-default add">Add</button>
+        </form>
+    </div>
+</div>

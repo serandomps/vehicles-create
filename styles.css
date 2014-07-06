@@ -1,0 +1,13 @@
+.auto-add .form-control {
+    margin-bottom: 10px;
+}
+
+.auto-add .price label,
+.auto-add .mileage label,
+.auto-add .description label {
+    margin-bottom: 4px;
+}
+
+.auto-add .fileinput-button {
+    margin-bottom: 10px;
+}

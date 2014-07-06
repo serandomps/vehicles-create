@@ -1,0 +1,9 @@
+{
+    "name": "auto-add",
+    "description": "auto-add component",
+    "local": ["dust", "serand"],
+    "scripts": ["index.js"],
+    "styles": ["styles.css"],
+    "templates": ["template.html"],
+    "main": "index.js"
+}
