@@ -52,7 +52,7 @@ module.exports = function (sandbox, fn, options) {
             return false;
         });
         fn(false, function () {
-            sandbox.remove('.auto-add');
+            $('.auto-add', sandbox).remove();
         });
     });
 };
