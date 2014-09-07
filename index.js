@@ -22,7 +22,7 @@ module.exports = function (sandbox, fn, options) {
         $('.fileupload', elem).fileupload({
             url: '/apis/v/vehicles',
             headers: {
-                'x-host': 'auto.serandives.com:4004'
+                'x-host': 'auto.serandives.com'
             },
             dataType: 'json',
             add: function (e, data) {
