@@ -11,3 +11,15 @@
 .auto-add .fileinput-button {
     margin-bottom: 10px;
 }
+
+.auto-add .files .filename {
+    overflow: hidden;
+}
+
+.auto-add .files .info {
+    margin-bottom: 2px;
+}
+
+.auto-add .files .thumbnail {
+    text-align: center;
+}
