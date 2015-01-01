@@ -1,12 +1,13 @@
 <div class="auto-add panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title">Add Vehicle</h3>
+        <h3 class="panel-title">{?update}Edit{:else}Add{/update} Vehicle</h3>
     </div>
     <div class="panel-body">
         <form role="form" class="auto-create">
-            <div class="form-group">
+            {#data}
+            <div class="form-group make" data-value="{make}">
                 <!--<label>Make</label>-->
-                <select class="form-control make">
+                <select class="form-control">
                     <option>Honda</option>
                     <option>Toyota</option>
                     <option>Mazda</option>
@@ -14,9 +15,9 @@
                     <option>Suzzuki</option>
                 </select>
             </div>
-            <div class="form-group">
+            <div class="form-group model" data-value="{model}">
                 <!--<label>Make</label>-->
-                <select class="form-control model">
+                <select class="form-control">
                     <option>Vezel</option>
                     <option>Insight</option>
                     <option>Fit</option>
@@ -24,9 +25,9 @@
                     <option>CR-V</option>
                 </select>
             </div>
-            <div class="form-group">
+            <div class="form-group year" data-value="{year}">
                 <!--<label>Make</label>-->
-                <select class="form-control year">
+                <select class="form-control">
                     <option>2014</option>
                     <option>2013</option>
                     <option>2012</option>
@@ -35,70 +36,82 @@
                     <option>2009</option>
                 </select>
             </div>
-            <div class="form-group">
+            <div class="form-group condition" data-value="{condition}">
                 <label>Condition</label>
 
-                <div class="options">
-                    <label class="checkbox">
-                        <input type="checkbox" value="option1">Brand New
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="condition" value="brandnew" checked>Brand New
                     </label>
-                    <label class="checkbox">
-                        <input type="checkbox" value="option2">Unregistered
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="condition" value="unregistered">Unregistered
                     </label>
-                    <label class="checkbox">
-                        <input type="checkbox" value="option3">Used
+                </div>
+                <div class="radio disabled">
+                    <label>
+                        <input type="radio" name="condition" value="used">Used
                     </label>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group transmission" data-value="{transmission}">
                 <label>Transmission</label>
 
-                <div class="options">
-                    <label class="checkbox">
-                        <input type="checkbox" value="option1">Automatic
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="transmission" value="automatic" checked>Automatic
                     </label>
-                    <label class="checkbox">
-                        <input type="checkbox" value="option2">Manual
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="transmission" value="manual">Manual
                     </label>
-                    <label class="checkbox">
-                        <input type="checkbox" value="option3">Manumatic
+                </div>
+                <div class="radio disabled">
+                    <label>
+                        <input type="radio" name="transmission" value="manumatic">Manumatic
                     </label>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group fuel" data-value="{fuel}">
                 <label>Fuel</label>
 
-                <div class="options">
-                    <label class="checkbox">
-                        <input type="checkbox" value="option1">Petrol
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="fuel" value="petrol" checked>Petrol
                     </label>
-                    <label class="checkbox">
-                        <input type="checkbox" value="option2">Diesel
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="fuel" value="diesel">Diesel
                     </label>
-                    <label class="checkbox">
-                        <input type="checkbox" value="option3">Hybrid
+                </div>
+                <div class="radio disabled">
+                    <label>
+                        <input type="radio" name="fuel" value="hybrid">Hybrid
                     </label>
                 </div>
             </div>
             <div class="form-group mileage">
                 <label>Mileage</label>
-                <input type="text" class="form-control" placeholder="Mileage">
+                <input type="text" class="form-control" placeholder="Mileage" value="{mileage}">
             </div>
             <div class="form-group price">
                 <label>Price</label>
 
                 <div class="row">
                     <div class="col-md-6">
-                        <input type="text" class="form-control min" placeholder="Minimum">
+                        <input type="text" class="form-control min" placeholder="Minimum" value="{price}">
                     </div>
                     <div class="col-md-6">
-                        <input type="text" class="form-control max" placeholder="Maximum">
+                        <input type="text" class="form-control max" placeholder="Maximum" value="{price}">
                     </div>
                 </div>
             </div>
             <div class="form-group description">
                 <label>Description</label>
-                <textarea class="form-control" rows="6"></textarea>
+                <textarea class="form-control" rows="6">{description}</textarea>
             </div>
             <div class="form-group photos">
                 <span class="btn btn-success fileinput-button upload-button">
@@ -111,9 +124,28 @@
                     <div class="progress-bar progress-bar-success"></div>
                 </div>-->
                 <div class="files row">
+                    {#update}
+                    {#photos}
+                    <div class="col-md-3 file">
+                        <div class="info row">
+                            <div class="col-md-6 col-xs-6 filename"></div>
+                            <div class="col-md-6 col-xs-6">
+                                <button data-index="0" class="btn btn-default btn-xs pull-right remove-file existing"
+                                        type="button" data-id="{.}">
+                                    <span aria-hidden="true" class="glyphicon glyphicon-remove"></span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="thumbnail">
+                            <img src="{#cdn}{.}{/cdn}{.}"/>
+                        </div>
+                    </div>
+                    {/photos}
+                    {/update}
                 </div>
             </div>
-            <button type="button" class="btn btn-default add">Add</button>
+            {/data}
+            <button type="button" class="btn btn-default add">{?update}Save{:else}Add{/update}</button>
         </form>
     </div>
 </div>

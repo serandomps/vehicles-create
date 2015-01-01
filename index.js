@@ -1,26 +1,71 @@
 var dust = require('dust')();
 var serand = require('serand');
 
+var AUTO_API = '/apis/v/vehicles';
+
+var cdn = serand.configs['cdn-images'];
+
+var upload = function (data, files, next, elem) {
+    $('.fileupload', elem).fileupload('send', {
+        files: files,
+        formData: {
+            data: JSON.stringify(data)
+        }
+    }).success(function (data, status, xhr) {
+        next();
+    }).error(function (xhr, status, err) {
+        next(err);
+    }).complete(function (data, status, xhr) {
+    });
+};
+
+var send = function (data, next, update) {
+    $.ajax({
+        url: AUTO_API + (update ? '/' + update : ''),
+        type: update ? 'PUT' : 'POST',
+        headers: {
+            'x-host': 'autos.serandives.com'
+        },
+        contentType: 'multipart/form-data',
+        dataType: 'json',
+        data: {
+            data: JSON.stringify(data)
+        },
+        success: function (data) {
+            next();
+        },
+        error: function (xhr, status, err) {
+            next(err);
+        }
+    });
+};
+
 dust.loadSource(dust.compile(require('./template'), 'auto-add'));
 
-module.exports = function (sandbox, fn, options) {
-    dust.render('auto-add', {}, function (err, out) {
+var render = function (sandbox, fn, data) {
+    var update = data.update;
+    dust.render('auto-add', data, function (err, out) {
         if (err) {
             return;
         }
         var elem = sandbox.append(out);
-        var files = [];
-        $('.make', elem).selecter({
-            label: 'Make'
+        var pending = [];
+        var existing = data.data.photos || [];
+        var el = $('.make', elem);
+        $('select', el).selecter({
+            label: el.data('value') || 'Make'
         });
-        $('.model', elem).selecter({
-            label: 'Model'
+        el = $('.model', elem);
+        $('select', el).selecter({
+            label: el.data('value') || 'Model'
         });
-        $('.year', elem).selecter({
-            label: 'Year'
+        el = $('.year', elem);
+        $('select', el).selecter({
+            label: el.data('value') || 'Year'
         });
         $('.fileupload', elem).fileupload({
-            url: '/apis/v/vehicles',
+            url: AUTO_API + (update ? '/' + update : ''),
+            type: update ? 'PUT' : 'POST',
             headers: {
                 'x-host': 'autos.serandives.com'
             },
@@ -37,15 +82,14 @@ module.exports = function (sandbox, fn, options) {
             previewMaxHeight: 100,
             previewCrop: true
         }).on('fileuploadadd', function (e, data) {
-            console.log('fileuploadadd');
             data.context = $('<div class="col-md-3 file"></div>');
             $.each(data.files, function (index, file) {
-                var length = files.push(file);
+                var length = pending.push(file);
                 data.context.append(
                     '<div class="info row">' +
                     '<div class="col-md-6 col-xs-6 filename">' + file.name + '</div>' +
                     '<div class="col-md-6 col-xs-6">' +
-                    '<button type="button" class="btn btn-default btn-xs pull-right remove-file" data-index="' + (length - 1) + '">' +
+                    '<button type="button" class="btn btn-default btn-xs pull-right remove-file pending" data-index="' + (length - 1) + '">' +
                     '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>' +
                     '</button>' +
                     '</div>' +
@@ -54,7 +98,6 @@ module.exports = function (sandbox, fn, options) {
                 $('.files').append(data.context);
             });
         }).on('fileuploadprocessalways', function (e, data) {
-            console.log('processalways');
             var index = data.index;
             var file = data.files[index];
             var node = $(data.context.children()[index]);
@@ -101,33 +144,63 @@ module.exports = function (sandbox, fn, options) {
              });*/
         }).prop('disabled', !$.support.fileInput)
             .parent().addClass($.support.fileInput ? undefined : 'disabled');
-
         $('.add', elem).click(function (e) {
             e.stopPropagation();
-            $('.fileupload', elem).fileupload('send', {
-                files: files,
-                formData: {
-                    data: JSON.stringify({
-                        make: $('.make', elem).val(),
-                        model: $('.model', elem).val(),
-                        year: $('.year', elem).val(),
-                        price: $('.price .min', elem).val(),
-                        mileage: $('.mileage input', elem).val()
-                    })
-                }
-            });
+            var data = {
+                make: $('.make select', elem).val(),
+                model: $('.model select', elem).val(),
+                year: $('.year select', elem).val(),
+                price: $('.price .min', elem).val(),
+                mileage: $('.mileage input', elem).val()
+            };
+            if (update) {
+                console.log(existing);
+                data.photos = existing;
+            }
+            var next = function (err) {
+                console.log('data updated/created successfully');
+            };
+            pending.length ? upload(data, pending, next, elem) : send(data, next, update);
             return false;
         });
-
         $(elem).on('click', '.remove-file', function () {
             var el = $(this);
-            var index = el.data('index');
-            files.splice(index, 1);
+            if (el.hasClass('pending')) {
+                pending.splice(el.data('index'), 1);
+            } else {
+                existing.splice(existing.indexOf(el.data('id')), 1);
+            }
             el.closest('.file').remove();
         });
-
         fn(false, function () {
             $('.auto-add', sandbox).remove();
         });
+    });
+};
+
+module.exports = function (sandbox, fn, options) {
+    var id = options.id;
+    if (!id) {
+        render(sandbox, fn, {
+            data: {}
+        });
+        return;
+    }
+    $.ajax({
+        url: AUTO_API + '/' + id,
+        headers: {
+            'x-host': 'autos.serandives.com'
+        },
+        dataType: 'json',
+        success: function (data) {
+            render(sandbox, fn, {
+                update: id,
+                cdn: cdn,
+                data: data
+            });
+        },
+        error: function () {
+            render(sandbox, fn);
+        }
     });
 };
