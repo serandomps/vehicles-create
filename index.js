@@ -40,6 +40,7 @@ var send = function (data, next, update) {
     });
 };
 
+dust.loadSource(dust.compile(require('./preview'), 'auto-add-preview'));
 dust.loadSource(dust.compile(require('./template'), 'auto-add'));
 
 var render = function (sandbox, fn, data) {
@@ -78,31 +79,30 @@ var render = function (sandbox, fn, data) {
             // send Blob objects via XHR requests:
             disableImageResize: /Android(?!.*Chrome)|Opera/
                 .test(window.navigator.userAgent),
-            previewMaxWidth: 100,
-            previewMaxHeight: 100,
+            previewMaxWidth: 180,
+            previewMaxHeight: 120,
             previewCrop: true
         }).on('fileuploadadd', function (e, data) {
             data.context = $('<div class="col-md-3 file"></div>');
             $.each(data.files, function (index, file) {
                 var length = pending.push(file);
-                data.context.append(
-                    '<div class="info row">' +
-                    '<div class="col-md-6 col-xs-6 filename">' + file.name + '</div>' +
-                    '<div class="col-md-6 col-xs-6">' +
-                    '<button type="button" class="btn btn-default btn-xs pull-right remove-file pending" data-index="' + (length - 1) + '">' +
-                    '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>' +
-                    '</button>' +
-                    '</div>' +
-                    '</div>'
-                );
-                $('.files').append(data.context);
+                dust.render('auto-add-preview', {
+                    name: file.name,
+                    index: length - 1
+                }, function (err, out) {
+                    if (err) {
+                        return;
+                    }
+                    data.context.append(out);
+                    $('.files').append(data.context);
+                });
             });
         }).on('fileuploadprocessalways', function (e, data) {
             var index = data.index;
             var file = data.files[index];
             var node = $(data.context.children()[index]);
             if (file.preview) {
-                data.context.append($('<div class="thumbnail"/>').append(file.preview));
+                $('.thumbnail', data.context).append(file.preview);
             }
             if (file.error) {
                 node

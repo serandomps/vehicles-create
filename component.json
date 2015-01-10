@@ -4,7 +4,7 @@
     "local": [],
     "scripts": ["index.js"],
     "styles": ["styles.css"],
-    "templates": ["template.html"],
+    "templates": ["template.html", "preview.html"],
     "main": "index.js",
     "dependencies": {
         "serandomps/dust": "master",

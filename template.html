@@ -127,18 +127,7 @@
                     {#update}
                     {#photos}
                     <div class="col-md-3 file">
-                        <div class="info row">
-                            <div class="col-md-6 col-xs-6 filename"></div>
-                            <div class="col-md-6 col-xs-6">
-                                <button data-index="0" class="btn btn-default btn-xs pull-right remove-file existing"
-                                        type="button" data-id="{.}">
-                                    <span aria-hidden="true" class="glyphicon glyphicon-remove"></span>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="thumbnail">
-                            <img src="{#cdn}{.}{/cdn}{.}"/>
-                        </div>
+                        {>"auto-add-preview" id="{.}"/}
                     </div>
                     {/photos}
                     {/update}
