@@ -4,10 +4,14 @@
     "local": [],
     "scripts": ["index.js"],
     "styles": ["styles.css"],
-    "templates": ["template.html", "preview.html"],
+    "templates": [
+        "template.html",
+        "preview.html"
+    ],
     "main": "index.js",
     "dependencies": {
         "serandomps/dust": "master",
-        "serandomps/serand": "master"
+        "serandomps/serand": "master",
+        "serandomps/autos-utils": "master"
     }
 }

@@ -1,22 +1,10 @@
 var dust = require('dust')();
 var serand = require('serand');
+var utils = require('autos-utils');
+
+var cdn = utils.cdn();
 
 var AUTO_API = '/apis/v/vehicles';
-
-var cdn = serand.configs['cdn-images'];
-
-var update = function (data) {
-    var photos = data.photos;
-    if (!photos) {
-        return;
-    }
-    var i;
-    var length = photos.length;
-    for (i = 0; i < length; i++) {
-        photos[i] = cdn + photos[i];
-    }
-    return data;
-};
 
 var upload = function (data, files, next, elem) {
     $('.fileupload', elem).fileupload('send', {
@@ -57,7 +45,7 @@ dust.loadSource(dust.compile(require('./preview'), 'auto-add-preview'));
 dust.loadSource(dust.compile(require('./template'), 'auto-add'));
 
 var render = function (sandbox, fn, data) {
-    var updating = data.update;
+    var update = data.update;
     dust.render('auto-add', data, function (err, out) {
         if (err) {
             return;
@@ -78,8 +66,8 @@ var render = function (sandbox, fn, data) {
             label: el.data('value') || 'Year'
         });
         $('.fileupload', elem).fileupload({
-            url: AUTO_API + (updating ? '/' + updating : ''),
-            type: updating ? 'PUT' : 'POST',
+            url: AUTO_API + (update ? '/' + update : ''),
+            type: update ? 'PUT' : 'POST',
             headers: {
                 'x-host': 'autos.serandives.com'
             },
@@ -168,14 +156,14 @@ var render = function (sandbox, fn, data) {
                 color: $('.color input', elem).val(),
                 description: $('.description textarea', elem).val()
             };
-            if (updating) {
+            if (update) {
                 console.log(existing);
                 data.photos = existing;
             }
             var next = function (err) {
                 console.log('data updated/created successfully');
             };
-            pending.length ? upload(data, pending, next, elem) : send(data, next, updating);
+            pending.length ? upload(data, pending, next, elem) : send(data, next, update);
             return false;
         });
         $(elem).on('click', '.remove-file', function () {
@@ -210,6 +198,7 @@ module.exports = function (sandbox, fn, options) {
         success: function (data) {
             render(sandbox, fn, {
                 update: id,
+                cdn: cdn,
                 data: data
             });
         },
