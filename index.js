@@ -151,9 +151,12 @@ var render = function (sandbox, fn, data) {
                 make: $('.make select', elem).val(),
                 model: $('.model select', elem).val(),
                 year: $('.year select', elem).val(),
-                price: $('.price input', elem).val(),
-                mileage: $('.mileage input', elem).val(),
+                condition: $('.condition input[name=condition]', elem).val(),
+                transmission: $('.transmission input[name=transmission]', elem).val(),
+                fuel: $('.fuel input[name=fuel]', elem).val(),
                 color: $('.color input', elem).val(),
+                mileage: $('.mileage input', elem).val(),
+                price: $('.price input', elem).val(),
                 description: $('.description textarea', elem).val()
             };
             if (update) {
@@ -203,7 +206,7 @@ module.exports = function (sandbox, fn, options) {
             });
         },
         error: function () {
-            render(sandbox, fn);
+            render(sandbox, fn, {});
         }
     });
 };
