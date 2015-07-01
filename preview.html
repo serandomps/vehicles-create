@@ -1,14 +1,14 @@
 <div class="info row">
     <div class="col-md-6 col-xs-6 filename"></div>
     <div class="col-md-6 col-xs-6">
-        <button data-index="0" class="btn btn-default btn-xs pull-right remove-file existing"
-                type="button" data-id="{id}" data-index="{index}">
+        <button class="btn btn-default btn-xs pull-right remove-file existing"
+                type="button" data-id="{id}" data-index="{?index}{index}{:else}0{/index}">
             <span aria-hidden="true" class="glyphicon glyphicon-remove"></span>
         </button>
     </div>
 </div>
 <div class="thumbnail">
-    {?cdn}
-    <img src="{#cdn}{.}{/cdn}{id}"/>
-    {/cdn}
+    {?url}
+    <img src="{url}"/>
+    {/url}
 </div>

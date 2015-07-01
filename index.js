@@ -22,7 +22,7 @@ var upload = function (data, files, next, elem) {
 
 var send = function (data, next, update) {
     $.ajax({
-        url: AUTO_API + (update ? '/' + update : ''),
+        url: AUTO_API + (update ? '/' + data.id : ''),
         type: update ? 'PUT' : 'POST',
         headers: {
             'x-host': 'autos.serandives.com'
@@ -45,14 +45,15 @@ dust.loadSource(dust.compile(require('./preview'), 'auto-add-preview'));
 dust.loadSource(dust.compile(require('./template'), 'auto-add'));
 
 var render = function (sandbox, fn, data) {
-    var update = data.update;
-    dust.render('auto-add', data, function (err, out) {
+    var update = data._.update;
+    var id = data.id;
+    var existing = data.photos || [];
+    dust.render('auto-add', utils.cdn288x162(data), function (err, out) {
         if (err) {
             return;
         }
         var elem = sandbox.append(out);
         var pending = [];
-        var existing = data.data.photos || [];
         var el = $('.make', elem);
         $('select', el).selecter({
             label: el.data('value') || 'Make'
@@ -66,7 +67,7 @@ var render = function (sandbox, fn, data) {
             label: el.data('value') || 'Year'
         });
         $('.fileupload', elem).fileupload({
-            url: AUTO_API + (update ? '/' + update : ''),
+            url: AUTO_API + (update ? '/' + data.id : ''),
             type: update ? 'PUT' : 'POST',
             headers: {
                 'x-host': 'autos.serandives.com'
@@ -161,6 +162,7 @@ var render = function (sandbox, fn, data) {
             };
             if (update) {
                 console.log(existing);
+                data.id = id;
                 data.photos = existing;
             }
             var next = function (err) {
@@ -188,7 +190,7 @@ module.exports = function (sandbox, fn, options) {
     var id = options.id;
     if (!id) {
         render(sandbox, fn, {
-            data: {}
+            _: {}
         });
         return;
     }
@@ -199,11 +201,10 @@ module.exports = function (sandbox, fn, options) {
         },
         dataType: 'json',
         success: function (data) {
-            render(sandbox, fn, {
-                update: id,
-                cdn: cdn,
-                data: data
-            });
+            data._ = {
+                update: true
+            };
+            render(sandbox, fn, data);
         },
         error: function () {
             render(sandbox, fn, {});

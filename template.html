@@ -1,10 +1,10 @@
 <div class="auto-add panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title">{?update}Edit{:else}Add{/update} Vehicle</h3>
+        <h3 class="panel-title">{?_.update}Edit{:else}Add{/_.update} Vehicle</h3>
     </div>
     <div class="panel-body">
         <form role="form" class="auto-create">
-            {#data}
+            {#.}
             <div class="form-group make" data-value="{make}">
                 <!--<label>Make</label>-->
                 <select class="form-control">
@@ -120,17 +120,22 @@
                     <div class="progress-bar progress-bar-success"></div>
                 </div>-->
                 <div class="files row">
-                    {#update}
+                    {#_.update}
                     {#photos}
                     <div class="col-md-3 file">
-                        {>"auto-add-preview" id="{.}"/}
+                        {>"auto-add-preview"/}
                     </div>
                     {/photos}
-                    {/update}
+                    {/_.update}
                 </div>
             </div>
-            {/data}
-            <button type="button" class="btn btn-default add">{?update}Save{:else}Add{/update}</button>
+            {/.}
+            <div class="form-group">
+                <button type="button" class="btn btn-default add">{?_.update}Save{:else}Add{/_.update}</button>
+                {?_.update}
+                <button type="button" class="btn btn-default delete">Delete</button>
+                {/_.update}
+            </div>
         </form>
     </div>
 </div>
