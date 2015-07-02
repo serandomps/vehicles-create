@@ -20,7 +20,7 @@ var upload = function (data, files, next, elem) {
     });
 };
 
-var send = function (data, next, update) {
+var send = function (data, done, update) {
     $.ajax({
         url: AUTO_API + (update ? '/' + data.id : ''),
         type: update ? 'PUT' : 'POST',
@@ -33,10 +33,26 @@ var send = function (data, next, update) {
             data: JSON.stringify(data)
         },
         success: function (data) {
-            next();
+            done();
         },
         error: function (xhr, status, err) {
-            next(err);
+            done(err);
+        }
+    });
+};
+
+var remove = function (id, done) {
+    $.ajax({
+        url: AUTO_API + '/' + id,
+        type: 'DELETE',
+        headers: {
+            'x-host': 'autos.serandives.com'
+        },
+        success: function (data) {
+            done();
+        },
+        error: function (xhr, status, err) {
+            done(err);
         }
     });
 };
@@ -165,10 +181,17 @@ var render = function (sandbox, fn, data) {
                 data.id = id;
                 data.photos = existing;
             }
-            var next = function (err) {
+            var done = function (err) {
                 console.log('data updated/created successfully');
             };
-            pending.length ? upload(data, pending, next, elem) : send(data, next, update);
+            pending.length ? upload(data, pending, done, elem) : send(data, done, update);
+            return false;
+        });
+        $('.delete', elem).click(function (e) {
+            e.stopPropagation();
+            remove(id, function (err) {
+                console.log('data deleted successfully');
+            });
             return false;
         });
         $(elem).on('click', '.remove-file', function () {
