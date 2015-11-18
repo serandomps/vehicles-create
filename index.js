@@ -210,6 +210,7 @@ var render = function (sandbox, fn, data) {
 };
 
 module.exports = function (sandbox, fn, options) {
+    options = options || {};
     var id = options.id;
     if (!id) {
         render(sandbox, fn, {
