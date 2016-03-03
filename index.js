@@ -25,7 +25,7 @@ var send = function (data, done, update) {
         url: AUTO_API + (update ? '/' + data.id : ''),
         type: update ? 'PUT' : 'POST',
         headers: {
-            'x-host': 'autos.serandives.com'
+            'X-Host': 'autos.serandives.com'
         },
         contentType: 'multipart/form-data',
         dataType: 'json',
@@ -46,7 +46,7 @@ var remove = function (id, done) {
         url: AUTO_API + '/' + id,
         type: 'DELETE',
         headers: {
-            'x-host': 'autos.serandives.com'
+            'X-Host': 'autos.serandives.com'
         },
         success: function (data) {
             done();
@@ -86,7 +86,7 @@ var render = function (sandbox, fn, data) {
             url: AUTO_API + (update ? '/' + data.id : ''),
             type: update ? 'PUT' : 'POST',
             headers: {
-                'x-host': 'autos.serandives.com'
+                'X-Host': 'autos.serandives.com'
             },
             dataType: 'json',
             autoUpload: false,
@@ -221,7 +221,7 @@ module.exports = function (sandbox, fn, options) {
     $.ajax({
         url: AUTO_API + '/' + id,
         headers: {
-            'x-host': 'autos.serandives.com'
+            'X-Host': 'autos.serandives.com'
         },
         dataType: 'json',
         success: function (data) {
