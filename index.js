@@ -4,7 +4,7 @@ var utils = require('autos-utils');
 
 var cdn = utils.cdn();
 
-var AUTO_API = '/apis/v/vehicles';
+var AUTO_API = 'https://autos.serandives.com/apis/v/vehicles';
 
 var upload = function (data, files, next, elem) {
     $('.fileupload', elem).fileupload('send', {
@@ -24,9 +24,6 @@ var send = function (data, done, update) {
     $.ajax({
         url: AUTO_API + (update ? '/' + data.id : ''),
         type: update ? 'PUT' : 'POST',
-        headers: {
-            'X-Host': 'autos.serandives.com'
-        },
         contentType: 'multipart/form-data',
         dataType: 'json',
         data: {
@@ -45,9 +42,6 @@ var remove = function (id, done) {
     $.ajax({
         url: AUTO_API + '/' + id,
         type: 'DELETE',
-        headers: {
-            'X-Host': 'autos.serandives.com'
-        },
         success: function (data) {
             done();
         },
@@ -85,9 +79,6 @@ var render = function (sandbox, fn, data) {
         $('.fileupload', elem).fileupload({
             url: AUTO_API + (update ? '/' + data.id : ''),
             type: update ? 'PUT' : 'POST',
-            headers: {
-                'X-Host': 'autos.serandives.com'
-            },
             dataType: 'json',
             autoUpload: false,
             acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
@@ -220,9 +211,6 @@ module.exports = function (sandbox, fn, options) {
     }
     $.ajax({
         url: AUTO_API + '/' + id,
-        headers: {
-            'X-Host': 'autos.serandives.com'
-        },
         dataType: 'json',
         success: function (data) {
             data._ = {
