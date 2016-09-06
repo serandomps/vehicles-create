@@ -1,10 +1,11 @@
 var dust = require('dust')();
 var serand = require('serand');
-var utils = require('autos-utils');
+var autils = require('autos-utils');
+var utils = require('utils');
 
-var cdn = utils.cdn();
+var cdn = autils.cdn();
 
-var AUTO_API = 'https://autos.serandives.com/apis/v/vehicles';
+var AUTO_API = utils.resolve('autos://apis/v/vehicles');
 
 var upload = function (data, files, next, elem) {
     $('.fileupload', elem).fileupload('send', {
@@ -58,7 +59,7 @@ var render = function (sandbox, fn, data) {
     var update = data._.update;
     var id = data.id;
     var existing = data.photos || [];
-    dust.render('auto-add', utils.cdn288x162(data), function (err, out) {
+    dust.render('auto-add', autils.cdn288x162(data), function (err, out) {
         if (err) {
             return;
         }
