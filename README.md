@@ -1,2 +1,2 @@
-auto-add
+autos-add
 ========

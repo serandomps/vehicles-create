@@ -1,25 +1,25 @@
-.auto-add .form-control {
+.autos-add .form-control {
     margin-bottom: 10px;
 }
 
-.auto-add .price label,
-.auto-add .mileage label,
-.auto-add .description label {
+.autos-add .price label,
+.autos-add .mileage label,
+.autos-add .description label {
     margin-bottom: 4px;
 }
 
-.auto-add .fileinput-button {
+.autos-add .fileinput-button {
     margin-bottom: 10px;
 }
 
-.auto-add .files .filename {
+.autos-add .files .filename {
     overflow: hidden;
 }
 
-.auto-add .files .info {
+.autos-add .files .info {
     margin-bottom: 2px;
 }
 
-.auto-add .files .thumbnail {
+.autos-add .files .thumbnail {
     text-align: center;
 }

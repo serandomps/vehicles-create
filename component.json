@@ -1,6 +1,6 @@
 {
-    "name": "auto-add",
-    "description": "auto-add component",
+    "name": "autos-add",
+    "description": "autos-add component",
     "local": [],
     "scripts": ["index.js"],
     "styles": ["styles.css"],
