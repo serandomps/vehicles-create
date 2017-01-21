@@ -4,9 +4,6 @@ var autils = require('autos-utils');
 var utils = require('utils');
 var Make = require('vehicle-make-service');
 var Model = require('vehicle-model-service');
-var Vehicle = require('vehicle-service');
-
-var cdn = autils.cdn();
 
 var AUTO_API = utils.resolve('autos://apis/v/vehicles');
 
