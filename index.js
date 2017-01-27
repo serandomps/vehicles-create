@@ -2,8 +2,8 @@ var dust = require('dust')();
 var serand = require('serand');
 var autils = require('autos-utils');
 var utils = require('utils');
-var Make = require('vehicle-make-service');
-var Model = require('vehicle-model-service');
+var Make = require('vehicle-makes-service');
+var Model = require('vehicle-models-service');
 
 var AUTO_API = utils.resolve('autos://apis/v/vehicles');
 
@@ -79,8 +79,8 @@ var updateModels = function (elem, make, model) {
     });
 };
 
-dust.loadSource(dust.compile(require('./preview'), 'autos-add-preview'));
-dust.loadSource(dust.compile(require('./template'), 'autos-add'));
+dust.loadSource(dust.compile(require('./preview'), 'vehicles-add-preview'));
+dust.loadSource(dust.compile(require('./template'), 'vehicles-add'));
 
 var render = function (sandbox, fn, data) {
     var update = data._.update;
@@ -91,7 +91,7 @@ var render = function (sandbox, fn, data) {
             return;
         }
         data._.makes = makes;
-        dust.render('autos-add', autils.cdn288x162(data), function (err, out) {
+        dust.render('vehicles-add', autils.cdn288x162(data), function (err, out) {
             if (err) {
                 return;
             }
@@ -125,7 +125,7 @@ var render = function (sandbox, fn, data) {
                 data.context = $('<div class="col-md-3 file"></div>');
                 $.each(data.files, function (index, file) {
                     var length = pending.push(file);
-                    dust.render('autos-add-preview', {
+                    dust.render('vehicles-add-preview', {
                         name: file.name,
                         index: length - 1
                     }, function (err, out) {
@@ -225,7 +225,7 @@ var render = function (sandbox, fn, data) {
                 el.closest('.file').remove();
             });
             fn(false, function () {
-                $('.autos-add', sandbox).remove();
+                $('.vehicles-add', sandbox).remove();
             });
         });
     });

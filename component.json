@@ -1,6 +1,6 @@
 {
-    "name": "autos-add",
-    "description": "autos-add component",
+    "name": "vehicles-add",
+    "description": "vehicles-add component",
     "local": [],
     "scripts": ["index.js"],
     "styles": ["styles.css"],
@@ -14,8 +14,8 @@
         "serandomps/serand": "master",
         "serandomps/utils": "master",
         "serandomps/autos-utils": "master",
-        "serandomps/vehicle-service": "master",
-        "serandomps/vehicle-make-service": "master",
-        "serandomps/vehicle-model-service": "master"
+        "serandomps/vehicles-service": "master",
+        "serandomps/vehicle-makes-service": "master",
+        "serandomps/vehicle-models-service": "master"
     }
 }

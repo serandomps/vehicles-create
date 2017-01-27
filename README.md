@@ -1,2 +1,2 @@
-autos-add
+vehicles-add
 ========
