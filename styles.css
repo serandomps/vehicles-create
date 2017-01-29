@@ -1,25 +1,25 @@
-.vehicles-add .form-control {
+.vehicles-create .form-control {
     margin-bottom: 10px;
 }
 
-.vehicles-add .price label,
-.vehicles-add .mileage label,
-.vehicles-add .description label {
+.vehicles-create .price label,
+.vehicles-create .mileage label,
+.vehicles-create .description label {
     margin-bottom: 4px;
 }
 
-.vehicles-add .fileinput-button {
+.vehicles-create .fileinput-button {
     margin-bottom: 10px;
 }
 
-.vehicles-add .files .filename {
+.vehicles-create .files .filename {
     overflow: hidden;
 }
 
-.vehicles-add .files .info {
+.vehicles-create .files .info {
     margin-bottom: 2px;
 }
 
-.vehicles-add .files .thumbnail {
+.vehicles-create .files .thumbnail {
     text-align: center;
 }

@@ -1,6 +1,6 @@
 {
-    "name": "vehicles-add",
-    "description": "vehicles-add component",
+    "name": "vehicles-create",
+    "description": "vehicles-create component",
     "local": [],
     "scripts": ["index.js"],
     "styles": ["styles.css"],
