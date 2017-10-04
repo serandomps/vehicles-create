@@ -186,10 +186,18 @@ var render = function (sandbox, fn, data) {
             $('.add', elem).click(function (e) {
                 e.stopPropagation();
                 var data = {
+                    type: 'suv',
                     contacts: {
                         "email": "user@serandives.com"
                     },
+                    manufacturedAt: 1497586160014,
                     location: '59d4a99c425e4b9585031b6e',
+                    doors: 5,
+                    seats: 5,
+                    engine: 1500,
+                    color: 'wine-red',
+                    driveType: 'front',
+                    steering: 'right',
                     make: select($('.make', elem)).val(),
                     model: select($('.model', elem)).val(),
                     year: select($('.year', elem)).val(),
@@ -199,6 +207,7 @@ var render = function (sandbox, fn, data) {
                     color: $('.color input', elem).val(),
                     mileage: $('.mileage input', elem).val(),
                     price: $('.price input', elem).val(),
+                    currency: 'LKR',
                     description: $('.description textarea', elem).val()
                 };
                 if (update) {
