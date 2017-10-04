@@ -186,6 +186,9 @@ var render = function (sandbox, fn, data) {
             $('.add', elem).click(function (e) {
                 e.stopPropagation();
                 var data = {
+                    contacts: {
+                        "email": "user@serandives.com"
+                    },
                     location: '59d4a99c425e4b9585031b6e',
                     make: select($('.make', elem)).val(),
                     model: select($('.model', elem)).val(),
