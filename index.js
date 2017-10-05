@@ -8,16 +8,18 @@ var Model = require('vehicle-models-service');
 var AUTO_API = utils.resolve('autos://apis/v/vehicles');
 
 var upload = function (data, files, next, elem) {
-    $('.fileupload', elem).fileupload('send', {
+    var xhr = $('.fileupload', elem).fileupload('send', {
+        paramName: 'photos',
         files: files,
         formData: {
             data: JSON.stringify(data)
         }
-    }).success(function (data, status, xhr) {
+    })
+    xhr.done(function (data, status, xhr) {
         next();
-    }).error(function (xhr, status, err) {
+    }).fail(function (xhr, status, err) {
         next(err);
-    }).complete(function (data, status, xhr) {
+    }).always(function (data, status, xhr) {
     });
 };
 
