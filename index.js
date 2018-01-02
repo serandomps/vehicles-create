@@ -187,6 +187,9 @@ var render = function (sandbox, fn, data) {
                 .parent().addClass($.support.fileInput ? undefined : 'disabled');
             $('.add', elem).click(function (e) {
                 e.stopPropagation();
+                var add = $(this);
+                var spinner = $('.spinner', add);
+                spinner.removeClass('hidden');
                 var data = {
                     type: 'suv',
                     contacts: {
@@ -217,6 +220,8 @@ var render = function (sandbox, fn, data) {
                 }
                 var done = function (err) {
                     console.log('data updated/created successfully');
+                    spinner.addClass('hidden');
+                    add.attr('disabled', true).find('.content').text('Added');
                 };
                 pending.length ? upload(data, pending, done, elem) : send(data, done, update);
                 return false;
