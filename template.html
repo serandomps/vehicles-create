@@ -5,129 +5,175 @@
     <div class="panel-body">
         <form role="form" class="auto-create">
             {#.}
-            <div class="form-group make">
-                <!--<label>Make</label>-->
-                <select class="form-control" data-name="make" data-value="{make}">
-                    <option value="">Make</option>
-                    {#_.makes}
-                    <option value="{id}">{title}</option>
-                    {/_.makes}
-                </select>
+            <div class="step-location">
+                <div class="form-group source location has-feedback" data-name="location"></div>
             </div>
-            <div class="form-group model">
-                <!--<label>Make</label>-->
-                <select class="form-control" data-name="model" data-value="{model}">
-                    <option value="">Model</option>
-                </select>
-            </div>
-            <div class="form-group year">
-                <!--<label>Make</label>-->
-                <select class="form-control" data-name="year" data-value="{year}">
-                    <option>2014</option>
-                    <option>2013</option>
-                    <option>2012</option>
-                    <option>2011</option>
-                    <option>2010</option>
-                    <option>2009</option>
-                </select>
-            </div>
-            <div class="form-group condition" data-value="{condition}">
-                <label>Condition</label>
+            <div class="step-vehicle">
+                <div class="form-group source type has-feedback" data-name="type">
+                    <!--<label>Make</label>-->
+                    <select class="form-control" data-value="{type}">
+                        <option value="">Type</option>
+                        <option value="suv">SUV</option>
+                        <option value="car">Car</option>
+                        <option value="cab">Cab</option>
+                        <option value="bus">Bus</option>
+                        <option value="lorry">Lorry</option>
+                        <option value="backhoe">Backhoe</option>
+                        <option value="motorcycle">Motorcycle</option>
+                        <option value="threewheeler">Threewheeler</option>
+                    </select>
+                    <span class="form-control-feedback hidden"></span>
+                    <span class="help-block hidden"></span>
+                </div>
+                <div class="form-group source make has-feedback" data-name="make">
+                    <!--<label>Make</label>-->
+                    <select class="form-control" data-value="{make}">
+                        <option value="">Make</option>
+                        {#_.makes}
+                        <option value="{id}">{title}</option>
+                        {/_.makes}
+                    </select>
+                    <span class="form-control-feedback hidden"></span>
+                    <span class="help-block hidden"></span>
+                </div>
+                <div class="form-group source model has-feedback" data-name="model">
+                    <!--<label>Make</label>-->
+                    <select class="form-control" data-value="{model}">
+                        <option value="">Model</option>
+                    </select>
+                    <span class="form-control-feedback hidden"></span>
+                    <span class="help-block hidden"></span>
+                </div>
+                <div class="form-group source manufacturedAt has-feedback" data-name="manufacturedAt">
+                    <!--<label>Make</label>-->
+                    <select class="form-control" data-value="{manufacturedAt}">
+                        <option value="">Year</option>
+                        <option value="2018">2018</option>
+                        <option value="2017">2017</option>
+                        <option value="2016">2016</option>
+                        <option value="2015">2015</option>
+                        <option value="2014">2014</option>
+                        <option value="2013">2013</option>
+                        <option value="2012">2012</option>
+                        <option value="2011">2011</option>
+                        <option value="2010">2010</option>
+                    </select>
+                    <span class="form-control-feedback hidden"></span>
+                    <span class="help-block hidden"></span>
+                </div>
+                <div class="form-group source condition has-feedback" data-name="condition" data-value="{condition}">
+                    <label>Condition</label>
 
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="condition" value="brand-new" checked>Brand New
-                    </label>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="condition" value="brand-new" checked>Brand New
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="condition" value="unregistered">Unregistered
+                        </label>
+                    </div>
+                    <div class="radio disabled">
+                        <label>
+                            <input type="radio" name="condition" value="used">Used
+                        </label>
+                    </div>
+                    <span class="form-control-feedback hidden"></span>
+                    <span class="help-block hidden"></span>
                 </div>
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="condition" value="unregistered">Unregistered
-                    </label>
-                </div>
-                <div class="radio disabled">
-                    <label>
-                        <input type="radio" name="condition" value="used">Used
-                    </label>
-                </div>
-            </div>
-            <div class="form-group transmission" data-value="{transmission}">
-                <label>Transmission</label>
+                <div class="form-group source transmission has-feedback" data-name="transmission"
+                     data-value="{transmission}">
+                    <label>Transmission</label>
 
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="transmission" value="automatic" checked>Automatic
-                    </label>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="transmission" value="automatic" checked>Automatic
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="transmission" value="manual">Manual
+                        </label>
+                    </div>
+                    <div class="radio disabled">
+                        <label>
+                            <input type="radio" name="transmission" value="manumatic">Manumatic
+                        </label>
+                    </div>
+                    <span class="form-control-feedback hidden"></span>
+                    <span class="help-block hidden"></span>
                 </div>
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="transmission" value="manual">Manual
-                    </label>
-                </div>
-                <div class="radio disabled">
-                    <label>
-                        <input type="radio" name="transmission" value="manumatic">Manumatic
-                    </label>
-                </div>
-            </div>
-            <div class="form-group fuel" data-value="{fuel}">
-                <label>Fuel</label>
+                <div class="form-group source fuel has-feedback" data-name="fuel" data-value="{fuel}">
+                    <label>Fuel</label>
 
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="fuel" value="petrol" checked>Petrol
-                    </label>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="fuel" value="petrol" checked>Petrol
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="fuel" value="diesel">Diesel
+                        </label>
+                    </div>
+                    <div class="radio disabled">
+                        <label>
+                            <input type="radio" name="fuel" value="hybrid">Hybrid
+                        </label>
+                    </div>
+                    <span class="form-control-feedback hidden"></span>
+                    <span class="help-block hidden"></span>
                 </div>
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="fuel" value="diesel">Diesel
-                    </label>
+                <div class="form-group source color has-feedback" data-name="color">
+                    <label class="control-label">Color</label>
+                    <input type="text" class="form-control" placeholder="Color" value="{color}">
+                    <span class="form-control-feedback hidden"></span>
+                    <span class="help-block hidden"></span>
                 </div>
-                <div class="radio disabled">
-                    <label>
-                        <input type="radio" name="fuel" value="hybrid">Hybrid
-                    </label>
+                <div class="form-group source mileage has-feedback" data-name="mileage">
+                    <label class="control-label">Mileage</label>
+                    <input type="text" class="form-control" placeholder="Mileage" value="{mileage}">
+                    <span class="form-control-feedback hidden"></span>
+                    <span class="help-block hidden"></span>
                 </div>
-            </div>
-            <div class="form-group color">
-                <label>Color</label>
-                <input type="text" class="form-control" placeholder="Color" value="{color}">
-            </div>
-            <div class="form-group mileage">
-                <label>Mileage</label>
-                <input type="text" class="form-control" placeholder="Mileage" value="{mileage}">
-            </div>
-            <div class="form-group price">
-                <label>Price</label>
-                <input type="text" class="form-control" placeholder="Minimum" value="{price}">
-            </div>
-            <div class="form-group description">
-                <label>Description</label>
-                <textarea class="form-control" rows="6">{description}</textarea>
-            </div>
-            <div class="form-group photos">
+                <div class="form-group source price has-feedback" data-name="price">
+                    <label class="control-label">Price</label>
+                    <input type="text" class="form-control" placeholder="Minimum" value="{price}">
+                    <span class="form-control-feedback hidden"></span>
+                    <span class="help-block hidden"></span>
+                </div>
+                <div class="form-group source description has-feedback" data-name="description">
+                    <label class="control-label">Description</label>
+                    <textarea class="form-control" rows="6">{description}</textarea>
+                    <span class="form-control-feedback hidden"></span>
+                    <span class="help-block hidden"></span>
+                </div>
+                <div class="form-group source photos has-feedback">
                 <span class="btn btn-success fileinput-button upload-button">
-                    <i class="glyphicon glyphicon-plus"></i>
-                    <span> Select Images...</span>
+                    <span class="btn-icon"><i class="fa fa-plus"></i></span>
+                    <span>Select Images...</span>
                     <input type="file" multiple="" name="files[]" class="fileupload">
                 </span>
 
-                <!--<div id="progress" class="progress">
-                    <div class="progress-bar progress-bar-success"></div>
-                </div>-->
-                <div class="files row">
-                    {#_.update}
-                    {#photos}
-                    <div class="col-md-3 file">
-                        {>"vehicles-create-preview"/}
+                    <!--<div id="progress" class="progress">
+                        <div class="progress-bar progress-bar-success"></div>
+                    </div>-->
+                    <div class="files row">
+                        {#_.update}
+                        {#photos}
+                        <div class="col-md-3 file">
+                            {>"vehicles-create-preview"/}
+                        </div>
+                        {/photos}
+                        {/_.update}
                     </div>
-                    {/photos}
-                    {/_.update}
                 </div>
             </div>
             {/.}
             <div class="form-group">
-                <button type="button" class="btn btn-default add">
-                    <span class="spinner hidden"><i class="fas fa-spinner fa-spin"></i></span>
+                <button type="button" class="btn btn-default next" data-step="vehicle">
+                    <span class="btn-icon hidden"><i class="fas fa-spinner fa-spin"></i></span>
                     <span class="content">{?_.update}Save{:else}Add{/_.update}</span>
                 </button>
                 {?_.update}

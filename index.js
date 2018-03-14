@@ -2,10 +2,262 @@ var dust = require('dust')();
 var serand = require('serand');
 var autils = require('autos-utils');
 var utils = require('utils');
+var form = require('form');
+var locate = require('locate');
 var Make = require('vehicle-makes-service');
 var Model = require('vehicle-models-service');
 
+dust.loadSource(dust.compile(require('./preview'), 'vehicles-create-preview'));
+dust.loadSource(dust.compile(require('./template'), 'vehicles-create'));
+
 var AUTO_API = utils.resolve('autos://apis/v/vehicles');
+
+var options = {
+    type: {
+        find: function (context, source, done) {
+            var value = select(source).val();
+            if (!value) {
+                return done(null, 'Please select the type of your vehicle');
+            }
+            done(null, null, value);
+        },
+        update: function (context, source, value, done) {
+            done();
+        },
+        render: function (elem, value, done) {
+            var el = $('.type', elem);
+            form.selectize(select(el, value || ''));
+            done();
+        }
+    },
+    contacts: {
+        find: function (context, source, done) {
+            done(null, null, {
+                email: 'user@serandives.com'
+            });
+        },
+        update: function (context, source, value, done) {
+            done();
+        }
+    },
+    manufacturedAt: {
+        find: function (context, source, done) {
+            var value = select(source).val();
+            if (!value) {
+                return done(null, 'Please select the year of your vehicle');
+            }
+            done(null, null, value);
+        },
+        update: function (context, source, value, done) {
+            done();
+        },
+        render: function (elem, value, done) {
+            var el = $('.manufacturedAt', elem);
+            form.selectize(select(el, value || ''));
+            done();
+        }
+    },
+    location: {
+        find: function (context, source, done) {
+            context.eventer.emit('find', done);
+        },
+        update: function (context, source, value, done) {
+            context.eventer.emit('update', done);
+        },
+        render: function (elem, value, done) {
+            var options = _.isString(value) ? {location: value} : value;
+            locate($('.location', elem), options, function (err, eventer) {
+                if (err) {
+                    return done(err);
+                }
+                eventer.on('change', function (location, done) {
+                    var button = $('.next', elem);
+                    if (location === '+') {
+                        step(elem, button, 'location', 'Next');
+                        return done();
+                    }
+                    step(elem, button, 'vehicle', 'Add');
+                    done();
+                });
+                done(null, {eventer: eventer});
+            });
+        },
+        create: function (context, value, done) {
+            context.eventer.emit('create', value, done);
+        }
+    },
+    doors: {
+        find: function (context, source, done) {
+            done(null, null, 5);
+        },
+        update: function (context, source, value, done) {
+            done();
+        }
+    },
+    seats: {
+        find: function (context, source, done) {
+            done(null, null, 5);
+        },
+        update: function (context, source, value, done) {
+            done();
+        }
+    },
+    engine: {
+        find: function (context, source, done) {
+            done(null, null, 1500);
+        },
+        update: function (context, source, value, done) {
+            done();
+        }
+    },
+    driveType: {
+        find: function (context, source, done) {
+            done(null, null, 'front');
+        },
+        update: function (context, source, value, done) {
+            done();
+        }
+    },
+    steering: {
+        find: function (context, source, done) {
+            done(null, null, 'right');
+        },
+        update: function (context, source, value, done) {
+            done();
+        }
+    },
+    make: {
+        find: function (context, source, done) {
+            var value = select(source).val();
+            if (!value) {
+                return done(null, 'Please select the make of your vehicle');
+            }
+            done(null, null, value);
+        },
+        update: function (context, source, value, done) {
+            done();
+        },
+        render: function (elem, value, done) {
+            var el = $('.make', elem);
+            form.selectize(select(el, value || '')).on('change', function (make) {
+                updateModels(elem, make);
+            });
+            done();
+        }
+    },
+    model: {
+        find: function (context, source, done) {
+            var value = select(source).val();
+            if (!value) {
+                return done(null, 'Please select the model of your vehicle');
+            }
+            done(null, null, value);
+        },
+        update: function (context, source, value, done) {
+            done();
+        }
+    },
+    condition: {
+        find: function (context, source, done) {
+            var value = $('input:checked', source).val();
+            if (!value) {
+                return done(null, 'Please select the condition of your vehicle');
+            }
+            done(null, null, value);
+        },
+        update: function (context, source, value, done) {
+            done();
+        }
+    },
+    transmission: {
+        find: function (context, source, done) {
+            var value = $('input:checked', source).val();
+            if (!value) {
+                return done(null, 'Please select the transmission of your vehicle');
+            }
+            done(null, null, value);
+        },
+        update: function (context, source, value, done) {
+            done();
+        }
+    },
+    fuel: {
+        find: function (context, source, done) {
+            var value = $('input:checked', source).val();
+            if (!value) {
+                return done(null, 'Please select the fuel of your vehicle');
+            }
+            done(null, null, value);
+        },
+        update: function (context, source, value, done) {
+            done();
+        }
+    },
+    color: {
+        find: function (context, source, done) {
+            var value = $('input', source).val();
+            if (!value) {
+                return done(null, 'Please enter the color of your vehicle');
+            }
+            done(null, null, value);
+        },
+        update: function (context, source, value, done) {
+            $('input', source).val(value);
+            done()
+        }
+    },
+    mileage: {
+        find: function (context, source, done) {
+            var value = $('input', source).val();
+            if (!value) {
+                return done(null, 'Please enter the mileage of your vehicle');
+            }
+            value = Number(value);
+            if (!is.number(value)) {
+                return done(null, 'Please enter a valid number for the mileage of your vehicle');
+            }
+            done(null, null, value);
+        },
+        update: function (context, source, value, done) {
+            $('input', source).val(value);
+            done()
+        }
+    },
+    price: {
+        find: function (context, source, done) {
+            var value = $('input', source).val();
+            if (!value) {
+                return done(null, 'Please enter the price of your vehicle');
+            }
+            value = Number(value);
+            if (!is.number(value)) {
+                return done(null, 'Please enter a valid amount for the price of your vehicle');
+            }
+            done(null, null, value);
+        },
+        update: function (context, source, value, done) {
+            $('input', source).val(value);
+            done()
+        }
+    },
+    currency: {
+        find: function (context, source, done) {
+            done(null, null, 'LKR');
+        },
+        update: function (context, source, value, done) {
+            done();
+        }
+    },
+    description: {
+        find: function (context, source, done) {
+            var value = $('textarea', source).val();
+            done(null, null, value);
+        },
+        update: function (context, source, value, done) {
+            done();
+        }
+    }
+};
 
 var upload = function (data, files, next, elem) {
     var xhr = $('.fileupload', elem).fileupload('send', {
@@ -55,20 +307,73 @@ var remove = function (id, done) {
 };
 
 var select = function (el, val) {
-    el = $('select', el);
+    el = el.children('select');
     return val ? el.val(val) : el;
+};
+
+var step = function (elem, button, name, next) {
+    button.find('.content').text(next);
+    button.data('step', name);
+    if (name === 'location') {
+        $('.step-vehicle', elem).addClass('hidden');
+        return;
+    }
+    if (name === 'vehicle') {
+        $('.step-' + name, elem).removeClass('hidden');
+    }
+};
+
+var add = function (id, update, vform, existing, pending, elem) {
+    $('.help-block', elem).addClass('hidden');
+    var add = $(this).attr('disabled', true);
+    var spinner = $('.spinner', add).removeClass('hidden');
+    vform.find(function (err, errors, data) {
+        if (err) {
+            return console.error(err);
+        }
+        console.log('find');
+        console.log(data);
+        if (errors) {
+            vform.update(errors, data, function (err) {
+                if (err) {
+                    return console.error(err);
+                }
+                add.removeAttr('disabled');
+            });
+            return;
+        }
+        if (update) {
+            console.log(existing);
+            data.id = id;
+            data.photos = existing;
+        }
+        vform.create(data, function (err, data) {
+            console.log('create')
+            console.log(data)
+            var done = function (err) {
+                spinner.addClass('hidden');
+                if (err) {
+                    console.error('error while updating/creating the vehicle');
+                    return add.removeAttr('disabled');
+                }
+                console.log('data updated/created successfully');
+                add.find('.content').text('Added');
+            };
+            pending.length ? upload(data, pending, done, elem) : send(data, done, update);
+        });
+    });
 };
 
 var updateModels = function (elem, make, model) {
     var html = '<option value="">Model</option>';
     var el = $('.model', elem);
     if (!make) {
-        select(el).html(html).selecter('destroy').selecter();
+        form.selectize(select(el).html(html));
         return;
     }
     Model.find(make, function (err, models) {
         if (err) {
-            return;
+            return console.error(err);
         }
         var i;
         var m;
@@ -76,13 +381,11 @@ var updateModels = function (elem, make, model) {
             m = models[i];
             html += '<option value="' + m.id + '">' + m.title + '</option>';
         }
-        select(el).html(html);
-        select(el, model || '').selecter('destroy').selecter();
+        form.selectize(select(el), function (el) {
+            el.html(html);
+        });
     });
 };
-
-dust.loadSource(dust.compile(require('./preview'), 'vehicles-create-preview'));
-dust.loadSource(dust.compile(require('./template'), 'vehicles-create'));
 
 var render = function (sandbox, fn, data) {
     var update = data._.update;
@@ -98,152 +401,99 @@ var render = function (sandbox, fn, data) {
                 return;
             }
             var elem = sandbox.append(out);
-            var pending = [];
-            var el = $('.make', elem);
-            select(el, data.make || '').selecter({
-                callback: function (make) {
-                    updateModels(elem, make);
-                }
-            });
-            updateModels(elem, data.make, data.model);
-            el = $('.year', elem);
-            select(el, data.year || '').selecter();
-            $('.fileupload', elem).fileupload({
-                url: AUTO_API + (update ? '/' + data.id : ''),
-                type: update ? 'PUT' : 'POST',
-                dataType: 'json',
-                autoUpload: false,
-                acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
-                maxFileSize: 5000000, // 5 MB
-                // Enable image resizing, except for Android and Opera,
-                // which actually support image resizing, but fail to
-                // send Blob objects via XHR requests:
-                disableImageResize: /Android(?!.*Chrome)|Opera/
-                    .test(window.navigator.userAgent),
-                previewMaxWidth: 180,
-                previewMaxHeight: 120,
-                previewCrop: true
-            }).on('fileuploadadd', function (e, data) {
-                data.context = $('<div class="col-md-3 file"></div>');
-                $.each(data.files, function (index, file) {
-                    var length = pending.push(file);
-                    dust.render('vehicles-create-preview', {
-                        name: file.name,
-                        index: length - 1
-                    }, function (err, out) {
-                        if (err) {
-                            return;
-                        }
-                        data.context.append(out);
-                        $('.files').append(data.context);
+            var vform = form.create(elem, options);
+            vform.render(data, function (err) {
+                if (err) return console.error(err);
+                var el;
+                var pending = [];
+                updateModels(elem, data.make, data.model);
+                el = $('.year', elem);
+                form.selectize(select(el, data.year || ''));
+                $('.fileupload', elem).fileupload({
+                    url: AUTO_API + (update ? '/' + data.id : ''),
+                    type: update ? 'PUT' : 'POST',
+                    dataType: 'json',
+                    autoUpload: false,
+                    acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+                    maxFileSize: 5000000, // 5 MB
+                    disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
+                    previewMaxWidth: 180,
+                    previewMaxHeight: 120,
+                    previewCrop: true
+                }).on('fileuploadadd', function (e, data) {
+                    data.context = $('<div class="col-md-3 file"></div>');
+                    $.each(data.files, function (index, file) {
+                        var length = pending.push(file);
+                        dust.render('vehicles-create-preview', {
+                            name: file.name,
+                            index: length - 1
+                        }, function (err, out) {
+                            if (err) {
+                                return console.error(err);
+                            }
+                            data.context.append(out);
+                            $('.files', elem).append(data.context);
+                        });
                     });
+                }).on('fileuploadprocessalways', function (e, data) {
+                    var index = data.index;
+                    var file = data.files[index];
+                    var node = $(data.context.children()[index]);
+                    if (file.preview) {
+                        $('.thumbnail', data.context).append(file.preview);
+                    }
+                    if (file.error) {
+                        node.append('<br>').append($('<span class="text-danger"/>').text(file.error));
+                    }
+                }).on('fileuploadprogressall', function (e, data) {
+
+                }).on('fileuploaddone', function (e, data) {
+
+                }).on('fileuploadfail', function (e, data) {
+
+                }).prop('disabled', !$.support.fileInput)
+                    .parent().addClass($.support.fileInput ? undefined : 'disabled');
+                $('.next', elem).click(function (e) {
+                    e.stopPropagation();
+                    var context;
+                    var thiz = $(this);
+                    var name = thiz.data('step');
+                    if (name === 'location') {
+                        context = vform.contexts['location'];
+                        context.eventer.emit('collapse', function (err) {
+                            if (err) {
+                                return console.error(err);
+                            }
+                            step(elem, thiz, 'vehicle', 'Add');
+                        });
+                        return false;
+                    }
+                    if (name === 'vehicle') {
+                        add(id, update, vform, existing, pending, elem);
+                        return false;
+                    }
+                    return false;
                 });
-            }).on('fileuploadprocessalways', function (e, data) {
-                var index = data.index;
-                var file = data.files[index];
-                var node = $(data.context.children()[index]);
-                if (file.preview) {
-                    $('.thumbnail', data.context).append(file.preview);
-                }
-                if (file.error) {
-                    node
-                        .append('<br>')
-                        .append($('<span class="text-danger"/>').text(file.error));
-                }
-                /*if (index + 1 === data.files.length) {
-                 data.context.find('button')
-                 .text('Upload')
-                 .prop('disabled', !!data.files.error);
-                 }*/
-            }).on('fileuploadprogressall', function (e, data) {
-                /*var progress = parseInt(data.loaded / data.total * 100, 10);
-                 $('#progress .progress-bar').css(
-                 'width',
-                 progress + '%'
-                 );*/
-            }).on('fileuploaddone', function (e, data) {
-                /*$.each(data.result.files, function (index, file) {
-                 if (file.url) {
-                 var link = $('<a>')
-                 .attr('target', '_blank')
-                 .prop('href', file.url);
-                 $(data.context.children()[index])
-                 .wrap(link);
-                 } else if (file.error) {
-                 var error = $('<span class="text-danger"/>').text(file.error);
-                 $(data.context.children()[index])
-                 .append('<br>')
-                 .append(error);
-                 }
-                 });*/
-            }).on('fileuploadfail', function (e, data) {
-                /*$.each(data.files, function (index) {
-                 var error = $('<span class="text-danger"/>').text('File upload failed.');
-                 $(data.context.children()[index])
-                 .append('<br>')
-                 .append(error);
-                 });*/
-            }).prop('disabled', !$.support.fileInput)
-                .parent().addClass($.support.fileInput ? undefined : 'disabled');
-            $('.add', elem).click(function (e) {
-                e.stopPropagation();
-                var add = $(this);
-                var spinner = $('.spinner', add);
-                spinner.removeClass('hidden');
-                var data = {
-                    type: 'suv',
-                    contacts: {
-                        "email": "user@serandives.com"
-                    },
-                    manufacturedAt: 1497586160014,
-                    location: '59d4a99c425e4b9585031b6e',
-                    doors: 5,
-                    seats: 5,
-                    engine: 1500,
-                    driveType: 'front',
-                    steering: 'right',
-                    make: select($('.make', elem)).val(),
-                    model: select($('.model', elem)).val(),
-                    condition: $('.condition input[name=condition]:checked', elem).val(),
-                    transmission: $('.transmission input[name=transmission]:checked', elem).val(),
-                    fuel: $('.fuel input[name=fuel]:checked', elem).val(),
-                    color: $('.color input', elem).val(),
-                    mileage: Number($('.mileage input', elem).val()),
-                    price: Number($('.price input', elem).val()),
-                    currency: 'LKR',
-                    description: $('.description textarea', elem).val()
-                };
-                if (update) {
-                    console.log(existing);
-                    data.id = id;
-                    data.photos = existing;
-                }
-                var done = function (err) {
-                    console.log('data updated/created successfully');
-                    spinner.addClass('hidden');
-                    add.attr('disabled', true).find('.content').text('Added');
-                };
-                pending.length ? upload(data, pending, done, elem) : send(data, done, update);
-                return false;
-            });
-            $('.delete', elem).click(function (e) {
-                e.stopPropagation();
-                remove(id, function (err) {
-                    console.log('data deleted successfully');
+                $('.delete', elem).click(function (e) {
+                    e.stopPropagation();
+                    remove(id, function (err) {
+                        console.log('data deleted successfully');
+                    });
+                    return false;
                 });
-                return false;
-            });
-            $(elem).on('click', '.remove-file', function () {
-                var el = $(this);
-                if (el.hasClass('pending')) {
-                    pending.splice(el.data('index'), 1);
-                } else {
-                    existing.splice(existing.indexOf(el.data('id')), 1);
-                }
-                el.closest('.file').remove();
-            });
-            fn(false, function () {
-                $('.vehicles-create', sandbox).remove();
+                $(elem).on('click', '.remove-file', function () {
+                    var el = $(this);
+                    if (el.hasClass('pending')) {
+                        pending.splice(el.data('index'), 1);
+                    } else {
+                        existing.splice(existing.indexOf(el.data('id')), 1);
+                    }
+                    el.closest('.file').remove();
+                    return false;
+                });
+                fn(false, function () {
+                    $('.vehicles-create', sandbox).remove();
+                });
             });
         });
     });

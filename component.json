@@ -13,6 +13,8 @@
         "serandomps/dust": "master",
         "serandomps/serand": "master",
         "serandomps/utils": "master",
+        "serandomps/form": "master",
+        "serandomps/locate": "master",
         "serandomps/autos-utils": "master",
         "serandomps/vehicles-service": "master",
         "serandomps/vehicle-makes-service": "master",

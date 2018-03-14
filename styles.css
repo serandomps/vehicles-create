@@ -1,10 +1,8 @@
-.vehicles-create .form-control {
+.vehicles-create .form-control1 {
     margin-bottom: 10px;
 }
 
-.vehicles-create .price label,
-.vehicles-create .mileage label,
-.vehicles-create .description label {
+.vehicles-create .control-label {
     margin-bottom: 4px;
 }
 
