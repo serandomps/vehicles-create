@@ -12,7 +12,7 @@ dust.loadSource(dust.compile(require('./template'), 'vehicles-create'));
 
 var AUTO_API = utils.resolve('autos://apis/v/vehicles');
 
-var options = {
+var configs = {
     type: {
         find: function (context, source, done) {
             var value = select(source).val();
@@ -21,7 +21,7 @@ var options = {
             }
             done(null, null, value);
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             done();
         },
         render: function (elem, value, done) {
@@ -36,7 +36,7 @@ var options = {
                 email: 'user@serandives.com'
             });
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             done();
         }
     },
@@ -48,7 +48,7 @@ var options = {
             }
             done(null, null, value);
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             done();
         },
         render: function (elem, value, done) {
@@ -61,7 +61,7 @@ var options = {
         find: function (context, source, done) {
             context.eventer.emit('find', done);
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             context.eventer.emit('update', done);
         },
         render: function (elem, value, done) {
@@ -90,7 +90,7 @@ var options = {
         find: function (context, source, done) {
             done(null, null, 5);
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             done();
         }
     },
@@ -98,7 +98,7 @@ var options = {
         find: function (context, source, done) {
             done(null, null, 5);
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             done();
         }
     },
@@ -106,7 +106,7 @@ var options = {
         find: function (context, source, done) {
             done(null, null, 1500);
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             done();
         }
     },
@@ -114,7 +114,7 @@ var options = {
         find: function (context, source, done) {
             done(null, null, 'front');
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             done();
         }
     },
@@ -122,7 +122,7 @@ var options = {
         find: function (context, source, done) {
             done(null, null, 'right');
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             done();
         }
     },
@@ -134,7 +134,7 @@ var options = {
             }
             done(null, null, value);
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             done();
         },
         render: function (elem, value, done) {
@@ -153,7 +153,7 @@ var options = {
             }
             done(null, null, value);
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             done();
         }
     },
@@ -165,7 +165,7 @@ var options = {
             }
             done(null, null, value);
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             done();
         }
     },
@@ -177,7 +177,7 @@ var options = {
             }
             done(null, null, value);
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             done();
         }
     },
@@ -189,7 +189,7 @@ var options = {
             }
             done(null, null, value);
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             done();
         }
     },
@@ -201,7 +201,7 @@ var options = {
             }
             done(null, null, value);
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             $('input', source).val(value);
             done()
         }
@@ -218,7 +218,7 @@ var options = {
             }
             done(null, null, value);
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             $('input', source).val(value);
             done()
         }
@@ -235,7 +235,7 @@ var options = {
             }
             done(null, null, value);
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             $('input', source).val(value);
             done()
         }
@@ -244,7 +244,7 @@ var options = {
         find: function (context, source, done) {
             done(null, null, 'LKR');
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             done();
         }
     },
@@ -253,7 +253,7 @@ var options = {
             var value = $('textarea', source).val();
             done(null, null, value);
         },
-        update: function (context, source, value, done) {
+        update: function (context, source, error, value, done) {
             done();
         }
     }
@@ -393,22 +393,24 @@ var render = function (sandbox, fn, data) {
     var existing = data.photos || [];
     Make.find(function (err, makes) {
         if (err) {
-            return;
+            return fn(err);
         }
         data._.makes = makes;
         dust.render('vehicles-create', autils.cdn288x162(data), function (err, out) {
             if (err) {
-                return;
+                return fn(err);
             }
             var elem = sandbox.append(out);
-            var vform = form.create(elem, options);
+            var vform = form.create(elem, configs);
             vform.render(data, function (err) {
-                if (err) return console.error(err);
+                if (err) {
+                    return fn(err);
+                }
                 var el;
                 var pending = [];
                 updateModels(elem, data.make, data.model);
-                el = $('.year', elem);
-                form.selectize(select(el, data.year || ''));
+                // el = $('.year', elem);
+                // form.selectize(select(el, data.year || ''));
                 $('.fileupload', elem).fileupload({
                     url: AUTO_API + (update ? '/' + data.id : ''),
                     type: update ? 'PUT' : 'POST',
@@ -459,7 +461,7 @@ var render = function (sandbox, fn, data) {
                     var thiz = $(this);
                     var name = thiz.data('step');
                     if (name === 'location') {
-                        context = vform.contexts['location'];
+                        context = vform.context('location');
                         context.eventer.emit('collapse', function (err) {
                             if (err) {
                                 return console.error(err);
