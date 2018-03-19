@@ -462,11 +462,24 @@ var render = function (sandbox, fn, data) {
                     var name = thiz.data('step');
                     if (name === 'location') {
                         context = vform.context('location');
-                        context.eventer.emit('collapse', function (err) {
+                        context.eventer.emit('find', function (err, errors, data) {
                             if (err) {
                                 return console.error(err);
                             }
-                            step(elem, thiz, 'vehicle', 'Add');
+                            context.eventer.emit('update', errors, data, function (err) {
+                                if (err) {
+                                    return console.error(err);
+                                }
+                                if (errors) {
+                                    return;
+                                }
+                                context.eventer.emit('collapse', function (err) {
+                                    if (err) {
+                                        return console.error(err);
+                                    }
+                                    step(elem, thiz, 'vehicle', 'Add');
+                                });
+                            });
                         });
                         return false;
                     }
