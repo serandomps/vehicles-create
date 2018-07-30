@@ -259,7 +259,7 @@ var configs = {
     }
 };
 
-var upload = function (data, files, next, elem) {
+var upload = function (data, files, elem, done) {
     var xhr = $('.fileupload', elem).fileupload('send', {
         paramName: 'photos',
         files: files,
@@ -268,14 +268,14 @@ var upload = function (data, files, next, elem) {
         }
     })
     xhr.done(function (data, status, xhr) {
-        next();
+        done();
     }).fail(function (xhr, status, err) {
-        next(err);
+        done(err);
     }).always(function (data, status, xhr) {
     });
 };
 
-var send = function (data, done, update) {
+var send = function (data, update, done) {
     $.ajax({
         url: AUTO_API + (update ? '/' + data.id : ''),
         type: update ? 'PUT' : 'POST',
@@ -285,10 +285,10 @@ var send = function (data, done, update) {
             data: JSON.stringify(data)
         },
         success: function (data) {
-            done();
+            done(null, data);
         },
         error: function (xhr, status, err) {
-            done(err);
+            done(err || status || xhr);
         }
     });
 };
@@ -298,10 +298,10 @@ var remove = function (id, done) {
         url: AUTO_API + '/' + id,
         type: 'DELETE',
         success: function (data) {
-            done();
+            done(null, data);
         },
         error: function (xhr, status, err) {
-            done(err);
+            done(err || status || xhr);
         }
     });
 };
@@ -359,7 +359,7 @@ var add = function (id, update, vform, existing, pending, elem) {
                 console.log('data updated/created successfully');
                 add.find('.content').text('Added');
             };
-            pending.length ? upload(data, pending, done, elem) : send(data, done, update);
+            pending.length ? upload(data, pending, elem, done) : send(data, update, done);
         });
     });
 };
@@ -387,24 +387,24 @@ var updateModels = function (elem, make, model) {
     });
 };
 
-var render = function (sandbox, fn, data) {
+var render = function (sandbox, data, done) {
     var update = data._.update;
     var id = data.id;
     var existing = data.photos || [];
     Make.find(function (err, makes) {
         if (err) {
-            return fn(err);
+            return done(err);
         }
         data._.makes = makes;
         dust.render('vehicles-create', autils.cdn288x162(data), function (err, out) {
             if (err) {
-                return fn(err);
+                return done(err);
             }
             var elem = sandbox.append(out);
             var vform = form.create(elem, configs);
             vform.render(data, function (err) {
                 if (err) {
-                    return fn(err);
+                    return done(err);
                 }
                 var el;
                 var pending = [];
@@ -506,7 +506,7 @@ var render = function (sandbox, fn, data) {
                     el.closest('.file').remove();
                     return false;
                 });
-                fn(false, function () {
+                done(null, function () {
                     $('.vehicles-create', sandbox).remove();
                 });
             });
@@ -514,13 +514,13 @@ var render = function (sandbox, fn, data) {
     });
 };
 
-module.exports = function (sandbox, fn, options) {
+module.exports = function (sandbox, options, done) {
     options = options || {};
     var id = options.id;
     if (!id) {
-        render(sandbox, fn, {
+        render(sandbox, {
             _: {}
-        });
+        }, done);
         return;
     }
     $.ajax({
@@ -530,10 +530,10 @@ module.exports = function (sandbox, fn, options) {
             data._ = {
                 update: true
             };
-            render(sandbox, fn, data);
+            render(sandbox, data, done);
         },
-        error: function () {
-            render(sandbox, fn, {});
+        error: function (xhr, status, err) {
+            done(err || status || xhr);
         }
     });
 };
