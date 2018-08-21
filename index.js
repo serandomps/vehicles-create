@@ -203,7 +203,7 @@ var configs = {
         },
         update: function (context, source, error, value, done) {
             $('input', source).val(value);
-            done()
+            done();
         }
     },
     mileage: {
@@ -220,7 +220,7 @@ var configs = {
         },
         update: function (context, source, error, value, done) {
             $('input', source).val(value);
-            done()
+            done();
         }
     },
     price: {
@@ -237,7 +237,7 @@ var configs = {
         },
         update: function (context, source, error, value, done) {
             $('input', source).val(value);
-            done()
+            done();
         }
     },
     currency: {
