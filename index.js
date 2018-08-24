@@ -10,7 +10,7 @@ var Model = require('vehicle-models-service');
 dust.loadSource(dust.compile(require('./preview'), 'vehicles-create-preview'));
 dust.loadSource(dust.compile(require('./template'), 'vehicles-create'));
 
-var AUTO_API = utils.resolve('autos://apis/v/vehicles');
+var AUTO_API = utils.resolve('autos:///apis/v/vehicles');
 
 var configs = {
     type: {
