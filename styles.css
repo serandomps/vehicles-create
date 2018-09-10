@@ -21,3 +21,14 @@
 .vehicles-create .files .thumbnail {
     text-align: center;
 }
+
+.vehicles-create .btn.next {
+    margin-right: 5px;
+}
+
+.vehicles-create .remove-file {
+    position: absolute;
+    top: 7px;
+    right: 22px;
+    color: #d9534f;
+}

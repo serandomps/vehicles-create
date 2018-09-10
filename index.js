@@ -4,6 +4,7 @@ var autils = require('autos-utils');
 var utils = require('utils');
 var form = require('form');
 var locate = require('locate');
+var Vehicle = require('vehicles-service');
 var Make = require('vehicle-makes-service');
 var Model = require('vehicle-models-service');
 
@@ -15,7 +16,7 @@ var AUTO_API = utils.resolve('autos:///apis/v/vehicles');
 var configs = {
     type: {
         find: function (context, source, done) {
-            var value = select(source).val();
+            var value = form.select(source).val();
             if (!value) {
                 return done(null, 'Please select the type of your vehicle');
             }
@@ -24,9 +25,9 @@ var configs = {
         update: function (context, source, error, value, done) {
             done();
         },
-        render: function (elem, value, done) {
+        render: function (elem, data, value, done) {
             var el = $('.type', elem);
-            form.selectize(select(el, value || ''));
+            form.selectize(form.select(el, null, value || ''));
             done();
         }
     },
@@ -42,7 +43,7 @@ var configs = {
     },
     manufacturedAt: {
         find: function (context, source, done) {
-            var value = select(source).val();
+            var value = form.select(source).val();
             if (!value) {
                 return done(null, 'Please select the year of your vehicle');
             }
@@ -51,9 +52,10 @@ var configs = {
         update: function (context, source, error, value, done) {
             done();
         },
-        render: function (elem, value, done) {
+        render: function (elem, data, value, done) {
             var el = $('.manufacturedAt', elem);
-            form.selectize(select(el, value || ''));
+            value = value ? moment(value).year() : '';
+            form.selectize(form.select(el, null, value));
             done();
         }
     },
@@ -64,7 +66,7 @@ var configs = {
         update: function (context, source, error, value, done) {
             context.eventer.emit('update', done);
         },
-        render: function (elem, value, done) {
+        render: function (elem, data, value, done) {
             var options = _.isString(value) ? {location: value} : value;
             locate($('.location', elem), options, function (err, eventer) {
                 if (err) {
@@ -128,7 +130,7 @@ var configs = {
     },
     make: {
         find: function (context, source, done) {
-            var value = select(source).val();
+            var value = form.select(source).val();
             if (!value) {
                 return done(null, 'Please select the make of your vehicle');
             }
@@ -137,17 +139,22 @@ var configs = {
         update: function (context, source, error, value, done) {
             done();
         },
-        render: function (elem, value, done) {
+        render: function (elem, data, value, done) {
             var el = $('.make', elem);
-            form.selectize(select(el, value || '')).on('change', function (make) {
-                updateModels(elem, make);
+            value = value ? value.id : '';
+            form.selectize(form.select(el, null, value)).on('change', function (make) {
+                updateModels(elem, {id: make}, null, function (err) {
+                    if (err) {
+                        console.error(err);
+                    }
+                });
             });
             done();
         }
     },
     model: {
         find: function (context, source, done) {
-            var value = select(source).val();
+            var value = form.select(source).val();
             if (!value) {
                 return done(null, 'Please select the model of your vehicle');
             }
@@ -155,6 +162,9 @@ var configs = {
         },
         update: function (context, source, error, value, done) {
             done();
+        },
+        render: function (elem, data, value, done) {
+            updateModels(elem, data.make, data.model, done);
         }
     },
     condition: {
@@ -306,11 +316,6 @@ var remove = function (id, done) {
     });
 };
 
-var select = function (el, val) {
-    el = el.children('select');
-    return val ? el.val(val) : el;
-};
-
 var step = function (elem, button, name, next) {
     button.find('.content').text(next);
     button.data('step', name);
@@ -364,16 +369,21 @@ var add = function (id, update, vform, existing, pending, elem) {
     });
 };
 
-var updateModels = function (elem, make, model) {
+var modelSelect;
+
+var updateModels = function (elem, make, model, done) {
     var html = '<option value="">Model</option>';
     var el = $('.model', elem);
-    if (!make) {
-        form.selectize(select(el).html(html));
-        return;
+    if (modelSelect) {
+        modelSelect.destroy();
     }
-    Model.find(make, function (err, models) {
+    if (!make) {
+        modelSelect = form.selectize(form.select(el).html(html));
+        return done();
+    }
+    Model.find(make.id, function (err, models) {
         if (err) {
-            return console.error(err);
+            return done(err);
         }
         var i;
         var m;
@@ -381,9 +391,8 @@ var updateModels = function (elem, make, model) {
             m = models[i];
             html += '<option value="' + m.id + '">' + m.title + '</option>';
         }
-        form.selectize(select(el), function (el) {
-            el.html(html);
-        });
+        modelSelect = form.selectize(form.select(el, html, model ? model.id : null));
+        done();
     });
 };
 
@@ -396,7 +405,7 @@ var render = function (sandbox, data, done) {
             return done(err);
         }
         data._.makes = makes;
-        dust.render('vehicles-create', autils.cdn288x162(data), function (err, out) {
+        dust.render('vehicles-create', data, function (err, out) {
             if (err) {
                 return done(err);
             }
@@ -408,7 +417,6 @@ var render = function (sandbox, data, done) {
                 }
                 var el;
                 var pending = [];
-                updateModels(elem, data.make, data.model);
                 // el = $('.year', elem);
                 // form.selectize(select(el, data.year || ''));
                 $('.fileupload', elem).fileupload({
@@ -523,17 +531,14 @@ module.exports = function (sandbox, options, done) {
         }, done);
         return;
     }
-    $.ajax({
-        url: AUTO_API + '/' + id,
-        dataType: 'json',
-        success: function (data) {
-            data._ = {
-                update: true
-            };
-            render(sandbox, data, done);
-        },
-        error: function (xhr, status, err) {
-            done(err || status || xhr);
+    Vehicle.findOne({
+        id: id,
+        images: '288x162'
+    }, function (err, vehicle) {
+        if (err) {
+            return done(err);
         }
+        vehicle._.update = true;
+        render(sandbox, vehicle, done);
     });
 };
