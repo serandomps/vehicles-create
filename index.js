@@ -25,7 +25,7 @@ var configs = {
         update: function (context, source, error, value, done) {
             done();
         },
-        render: function (elem, data, value, done) {
+        render: function (contexts, elem, data, value, done) {
             var el = $('.type', elem);
             form.selectize(form.select(el, null, value || ''));
             done();
@@ -52,7 +52,7 @@ var configs = {
         update: function (context, source, error, value, done) {
             done();
         },
-        render: function (elem, data, value, done) {
+        render: function (contexts, elem, data, value, done) {
             var el = $('.manufacturedAt', elem);
             value = value ? moment(value).year() : '';
             form.selectize(form.select(el, null, value));
@@ -66,7 +66,7 @@ var configs = {
         update: function (context, source, error, value, done) {
             context.eventer.emit('update', done);
         },
-        render: function (elem, data, value, done) {
+        render: function (contexts, elem, data, value, done) {
             var options = _.isString(value) ? {location: value} : value;
             locate($('.location', elem), options, function (err, eventer) {
                 if (err) {
@@ -139,11 +139,11 @@ var configs = {
         update: function (context, source, error, value, done) {
             done();
         },
-        render: function (elem, data, value, done) {
+        render: function (contexts, elem, data, value, done) {
             var el = $('.make', elem);
             value = value ? value.id : '';
             form.selectize(form.select(el, null, value)).on('change', function (make) {
-                updateModels(elem, {id: make}, null, function (err) {
+                updateModels(contexts.model, elem, {id: make}, null, function (err) {
                     if (err) {
                         console.error(err);
                     }
@@ -163,8 +163,14 @@ var configs = {
         update: function (context, source, error, value, done) {
             done();
         },
-        render: function (elem, data, value, done) {
-            updateModels(elem, data.make, data.model, done);
+        render: function (contexts, elem, data, value, done) {
+            var ctx = {};
+            updateModels(ctx, elem, data.make, data.model, function (err) {
+                if (err) {
+                    return done(err);
+                }
+                done(null, ctx);
+            });
         }
     },
     condition: {
@@ -371,27 +377,24 @@ var add = function (id, update, vform, existing, pending, elem) {
 
 var modelSelect;
 
-var updateModels = function (elem, make, model, done) {
-    var html = '<option value="">Model</option>';
+var updateModels = function (ctx, elem, make, model, done) {
+    ctx = ctx || {};
     var el = $('.model', elem);
-    if (modelSelect) {
-        modelSelect.destroy();
+    if (!ctx.modelSelect) {
+        ctx.modelSelect = form.selectize(form.select(el));
     }
     if (!make) {
-        modelSelect = form.selectize(form.select(el).html(html));
+        ctx.modelSelect.addOption({value: '', text: 'Model'});
         return done();
     }
     Model.find(make.id, function (err, models) {
         if (err) {
             return done(err);
         }
-        var i;
-        var m;
-        for (i = 0; i < models.length; i++) {
-            m = models[i];
-            html += '<option value="' + m.id + '">' + m.title + '</option>';
-        }
-        modelSelect = form.selectize(form.select(el, html, model ? model.id : null));
+        ctx.modelSelect.clearOptions();
+        models.forEach(function (m) {
+            ctx.modelSelect.addOption({value: m.id, text: m.title});
+        });
         done();
     });
 };
