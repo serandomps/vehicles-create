@@ -395,6 +395,9 @@ var updateModels = function (ctx, elem, make, model, done) {
         models.forEach(function (m) {
             ctx.modelSelect.addOption({value: m.id, text: m.title});
         });
+        if (model) {
+            ctx.modelSelect.setValue(model.id);
+        }
         done();
     });
 };
