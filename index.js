@@ -25,8 +25,8 @@ var configs = {
         update: function (context, source, error, value, done) {
             done();
         },
-        render: function (contexts, elem, data, value, done) {
-            var el = $('.type', elem);
+        render: function (ctx, vform, data, value, done) {
+            var el = $('.type', vform.elem);
             form.selectize(form.select(el, null, value || ''));
             done();
         }
@@ -52,8 +52,8 @@ var configs = {
         update: function (context, source, error, value, done) {
             done();
         },
-        render: function (contexts, elem, data, value, done) {
-            var el = $('.manufacturedAt', elem);
+        render: function (ctx, vform, data, value, done) {
+            var el = $('.manufacturedAt', vform.elem);
             value = value ? moment(value).year() : '';
             form.selectize(form.select(el, null, value));
             done();
@@ -66,19 +66,19 @@ var configs = {
         update: function (context, source, error, value, done) {
             context.eventer.emit('update', done);
         },
-        render: function (contexts, elem, data, value, done) {
-            var options = _.isString(value) ? {location: value} : value;
-            locate($('.location', elem), options, function (err, eventer) {
+        render: function (ctx, vform, data, value, done) {
+            var options = _.isString(value) ? {user: data.user, location: value} : value;
+            locate({}, $('.location', vform.elem), options, function (err, eventer) {
                 if (err) {
                     return done(err);
                 }
                 eventer.on('change', function (location, done) {
-                    var button = $('.next', elem);
+                    var button = $('.next', vform.elem);
                     if (location === '+') {
-                        step(elem, button, 'location', 'Next');
+                        step(vform.elem, button, 'location', 'Next');
                         return done();
                     }
-                    step(elem, button, 'vehicle', 'Add');
+                    step(vform.elem, button, 'vehicle', 'Add');
                     done();
                 });
                 done(null, {eventer: eventer});
@@ -139,11 +139,11 @@ var configs = {
         update: function (context, source, error, value, done) {
             done();
         },
-        render: function (contexts, elem, data, value, done) {
-            var el = $('.make', elem);
+        render: function (ctx, vform, data, value, done) {
+            var el = $('.make', vform.elem);
             value = value ? value.id : '';
             form.selectize(form.select(el, null, value)).on('change', function (make) {
-                updateModels(contexts.model, elem, {id: make}, null, function (err) {
+                updateModels(vform.contexts.model, vform.elem, {id: make}, null, function (err) {
                     if (err) {
                         console.error(err);
                     }
@@ -163,13 +163,13 @@ var configs = {
         update: function (context, source, error, value, done) {
             done();
         },
-        render: function (contexts, elem, data, value, done) {
-            var ctx = {};
-            updateModels(ctx, elem, data.make, data.model, function (err) {
+        render: function (ctx, vform, data, value, done) {
+            var context = {};
+            updateModels(context, vform.elem, data.make, data.model, function (err) {
                 if (err) {
                     return done(err);
                 }
-                done(null, ctx);
+                done(null, context);
             });
         }
     },
@@ -402,7 +402,7 @@ var updateModels = function (ctx, elem, make, model, done) {
     });
 };
 
-var render = function (sandbox, data, done) {
+var render = function (ctx, sandbox, data, done) {
     var update = data._.update;
     var id = data.id;
     var existing = data.photos || [];
@@ -417,7 +417,7 @@ var render = function (sandbox, data, done) {
             }
             var elem = sandbox.append(out);
             var vform = form.create(elem, configs);
-            vform.render(data, function (err) {
+            vform.render(ctx, data, function (err) {
                 if (err) {
                     return done(err);
                 }
@@ -528,11 +528,11 @@ var render = function (sandbox, data, done) {
     });
 };
 
-module.exports = function (sandbox, options, done) {
+module.exports = function (ctx, sandbox, options, done) {
     options = options || {};
     var id = options.id;
     if (!id) {
-        render(sandbox, {
+        render(ctx, sandbox, {
             _: {}
         }, done);
         return;
@@ -545,6 +545,6 @@ module.exports = function (sandbox, options, done) {
             return done(err);
         }
         vehicle._.update = true;
-        render(sandbox, vehicle, done);
+        render(ctx, sandbox, vehicle, done);
     });
 };
