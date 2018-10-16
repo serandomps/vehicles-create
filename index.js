@@ -16,11 +16,13 @@ var AUTO_API = utils.resolve('autos:///apis/v/vehicles');
 var configs = {
     type: {
         find: function (context, source, done) {
-            var value = form.select(source).val();
+            done(null, form.select(source).val());
+        },
+        validate: function (context, data, value, done) {
             if (!value) {
                 return done(null, 'Please select the type of your vehicle');
             }
-            done(null, null, value);
+            done();
         },
         update: function (context, source, error, value, done) {
             done();
@@ -33,9 +35,12 @@ var configs = {
     },
     contacts: {
         find: function (context, source, done) {
-            done(null, null, {
+            done(null, {
                 email: 'user@serandives.com'
             });
+        },
+        validate: function (context, data, value, done) {
+            done();
         },
         update: function (context, source, error, value, done) {
             done();
@@ -43,11 +48,13 @@ var configs = {
     },
     manufacturedAt: {
         find: function (context, source, done) {
-            var value = form.select(source).val();
+            done(null, form.select(source).val());
+        },
+        validate: function (context, data, value, done) {
             if (!value) {
                 return done(null, 'Please select the year of your vehicle');
             }
-            done(null, null, value);
+            done();
         },
         update: function (context, source, error, value, done) {
             done();
@@ -63,8 +70,14 @@ var configs = {
         find: function (context, source, done) {
             context.eventer.emit('find', done);
         },
+        validate: function (context, data, value, done) {
+            if (!value) {
+                return done(null, 'Please select the location of your vehicle');
+            }
+            context.eventer.emit('validate', value, done);
+        },
         update: function (context, source, error, value, done) {
-            context.eventer.emit('update', done);
+            context.eventer.emit('update', error, value, done);
         },
         render: function (ctx, vform, data, value, done) {
             var options = _.isString(value) ? {user: data.user, location: value} : value;
@@ -85,12 +98,17 @@ var configs = {
             });
         },
         create: function (context, value, done) {
-            context.eventer.emit('create', value, done);
+            context.eventer.emit('create', value, function (err, errors, location) {
+                done(err, errors, location);
+            });
         }
     },
     doors: {
         find: function (context, source, done) {
-            done(null, null, 5);
+            done(null, 5);
+        },
+        validate: function (context, data, value, done) {
+            done();
         },
         update: function (context, source, error, value, done) {
             done();
@@ -98,7 +116,10 @@ var configs = {
     },
     seats: {
         find: function (context, source, done) {
-            done(null, null, 5);
+            done(null, 5);
+        },
+        validate: function (context, data, value, done) {
+            done();
         },
         update: function (context, source, error, value, done) {
             done();
@@ -106,7 +127,10 @@ var configs = {
     },
     engine: {
         find: function (context, source, done) {
-            done(null, null, 1500);
+            done(null,1500);
+        },
+        validate: function (context, data, value, done) {
+            done();
         },
         update: function (context, source, error, value, done) {
             done();
@@ -114,7 +138,10 @@ var configs = {
     },
     driveType: {
         find: function (context, source, done) {
-            done(null, null, 'front');
+            done(null, 'front');
+        },
+        validate: function (context, data, value, done) {
+            done();
         },
         update: function (context, source, error, value, done) {
             done();
@@ -122,7 +149,10 @@ var configs = {
     },
     steering: {
         find: function (context, source, done) {
-            done(null, null, 'right');
+            done(null, 'right');
+        },
+        validate: function (context, data, value, done) {
+            done();
         },
         update: function (context, source, error, value, done) {
             done();
@@ -130,11 +160,13 @@ var configs = {
     },
     make: {
         find: function (context, source, done) {
-            var value = form.select(source).val();
+            done(null, form.select(source).val());
+        },
+        validate: function (context, data, value, done) {
             if (!value) {
                 return done(null, 'Please select the make of your vehicle');
             }
-            done(null, null, value);
+            done();
         },
         update: function (context, source, error, value, done) {
             done();
@@ -154,11 +186,13 @@ var configs = {
     },
     model: {
         find: function (context, source, done) {
-            var value = form.select(source).val();
+            done(null, form.select(source).val());
+        },
+        validate: function (context, data, value, done) {
             if (!value) {
                 return done(null, 'Please select the model of your vehicle');
             }
-            done(null, null, value);
+            done();
         },
         update: function (context, source, error, value, done) {
             done();
@@ -175,11 +209,13 @@ var configs = {
     },
     condition: {
         find: function (context, source, done) {
-            var value = $('input:checked', source).val();
+            done(null, $('input:checked', source).val());
+        },
+        validate: function (context, data, value, done) {
             if (!value) {
                 return done(null, 'Please select the condition of your vehicle');
             }
-            done(null, null, value);
+            done();
         },
         update: function (context, source, error, value, done) {
             done();
@@ -187,11 +223,13 @@ var configs = {
     },
     transmission: {
         find: function (context, source, done) {
-            var value = $('input:checked', source).val();
+            done(null, $('input:checked', source).val());
+        },
+        validate: function (context, data, value, done) {
             if (!value) {
                 return done(null, 'Please select the transmission of your vehicle');
             }
-            done(null, null, value);
+            done();
         },
         update: function (context, source, error, value, done) {
             done();
@@ -199,11 +237,13 @@ var configs = {
     },
     fuel: {
         find: function (context, source, done) {
-            var value = $('input:checked', source).val();
+            done(null, $('input:checked', source).val());
+        },
+        validate: function (context, data, value, done) {
             if (!value) {
                 return done(null, 'Please select the fuel of your vehicle');
             }
-            done(null, null, value);
+            done();
         },
         update: function (context, source, error, value, done) {
             done();
@@ -211,11 +251,13 @@ var configs = {
     },
     color: {
         find: function (context, source, done) {
-            var value = $('input', source).val();
+            done(null, $('input', source).val());
+        },
+        validate: function (context, data, value, done) {
             if (!value) {
                 return done(null, 'Please enter the color of your vehicle');
             }
-            done(null, null, value);
+            done();
         },
         update: function (context, source, error, value, done) {
             $('input', source).val(value);
@@ -224,7 +266,9 @@ var configs = {
     },
     mileage: {
         find: function (context, source, done) {
-            var value = $('input', source).val();
+            done(null, $('input', source).val());
+        },
+        validate: function (context, data, value, done) {
             if (!value) {
                 return done(null, 'Please enter the mileage of your vehicle');
             }
@@ -232,7 +276,7 @@ var configs = {
             if (!is.number(value)) {
                 return done(null, 'Please enter a valid number for the mileage of your vehicle');
             }
-            done(null, null, value);
+            done();
         },
         update: function (context, source, error, value, done) {
             $('input', source).val(value);
@@ -241,7 +285,9 @@ var configs = {
     },
     price: {
         find: function (context, source, done) {
-            var value = $('input', source).val();
+            done(null, $('input', source).val());
+        },
+        validate: function (context, data, value, done) {
             if (!value) {
                 return done(null, 'Please enter the price of your vehicle');
             }
@@ -249,7 +295,7 @@ var configs = {
             if (!is.number(value)) {
                 return done(null, 'Please enter a valid amount for the price of your vehicle');
             }
-            done(null, null, value);
+            done();
         },
         update: function (context, source, error, value, done) {
             $('input', source).val(value);
@@ -258,7 +304,10 @@ var configs = {
     },
     currency: {
         find: function (context, source, done) {
-            done(null, null, 'LKR');
+            done(null, 'LKR');
+        },
+        validate: function (context, data, value, done) {
+            done();
         },
         update: function (context, source, error, value, done) {
             done();
@@ -266,8 +315,10 @@ var configs = {
     },
     description: {
         find: function (context, source, done) {
-            var value = $('textarea', source).val();
-            done(null, null, value);
+            done(null, $('textarea', source).val());
+        },
+        validate: function (context, data, value, done) {
+            done();
         },
         update: function (context, source, error, value, done) {
             done();
@@ -338,39 +389,54 @@ var add = function (id, update, vform, existing, pending, elem) {
     $('.help-block', elem).addClass('hidden');
     var add = $(this).attr('disabled', true);
     var spinner = $('.spinner', add).removeClass('hidden');
-    vform.find(function (err, errors, data) {
+    vform.find(function (err, data) {
         if (err) {
             return console.error(err);
         }
         console.log('find');
         console.log(data);
-        if (errors) {
-            vform.update(errors, data, function (err) {
+        vform.validate(data, function (err, errors) {
+            if (err) {
+                return console.error(err);
+            }
+            if (errors) {
+                vform.update(errors, data, function (err) {
+                    if (err) {
+                        return console.error(err);
+                    }
+                    add.removeAttr('disabled');
+                });
+                return;
+            }
+            if (update) {
+                console.log(existing);
+                data.id = id;
+                data.photos = existing;
+            }
+            vform.create(data, function (err, errors, data) {
                 if (err) {
                     return console.error(err);
                 }
-                add.removeAttr('disabled');
-            });
-            return;
-        }
-        if (update) {
-            console.log(existing);
-            data.id = id;
-            data.photos = existing;
-        }
-        vform.create(data, function (err, data) {
-            console.log('create')
-            console.log(data)
-            var done = function (err) {
-                spinner.addClass('hidden');
-                if (err) {
-                    console.error('error while updating/creating the vehicle');
-                    return add.removeAttr('disabled');
+                if (errors) {
+                    vform.update(errors, data, function (err) {
+                        if (err) {
+                            return console.error(err);
+                        }
+                        add.removeAttr('disabled');
+                    });
+                    return;
                 }
-                console.log('data updated/created successfully');
-                add.find('.content').text('Added');
-            };
-            pending.length ? upload(data, pending, elem, done) : send(data, update, done);
+                var done = function (err) {
+                    spinner.addClass('hidden');
+                    if (err) {
+                        console.error('error while updating/creating the vehicle');
+                        return add.removeAttr('disabled');
+                    }
+                    console.log('data updated/created successfully');
+                    add.find('.content').text('Added');
+                };
+                pending.length ? upload(data, pending, elem, done) : send(data, update, done);
+            });
         });
     });
 };
