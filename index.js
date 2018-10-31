@@ -5,12 +5,14 @@ var utils = require('utils');
 var form = require('form');
 var locate = require('locate');
 var Vehicle = require('vehicles-service');
+var Binaries = require('service-binaries');
 var Make = require('vehicle-makes-service');
 var Model = require('vehicle-models-service');
 
 dust.loadSource(dust.compile(require('./preview'), 'vehicles-create-preview'));
 dust.loadSource(dust.compile(require('./template'), 'vehicles-create'));
 
+var BINARY_API = utils.resolve('accounts:///apis/v/binaries');
 var AUTO_API = utils.resolve('autos:///apis/v/vehicles');
 
 var configs = {
@@ -22,7 +24,7 @@ var configs = {
             if (!value) {
                 return done(null, 'Please select the type of your vehicle');
             }
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             done();
@@ -40,7 +42,7 @@ var configs = {
             });
         },
         validate: function (context, data, value, done) {
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             done();
@@ -54,7 +56,7 @@ var configs = {
             if (!value) {
                 return done(null, 'Please select the year of your vehicle');
             }
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             done();
@@ -108,7 +110,7 @@ var configs = {
             done(null, 5);
         },
         validate: function (context, data, value, done) {
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             done();
@@ -119,7 +121,7 @@ var configs = {
             done(null, 5);
         },
         validate: function (context, data, value, done) {
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             done();
@@ -127,10 +129,10 @@ var configs = {
     },
     engine: {
         find: function (context, source, done) {
-            done(null,1500);
+            done(null, 1500);
         },
         validate: function (context, data, value, done) {
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             done();
@@ -141,7 +143,7 @@ var configs = {
             done(null, 'front');
         },
         validate: function (context, data, value, done) {
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             done();
@@ -152,7 +154,7 @@ var configs = {
             done(null, 'right');
         },
         validate: function (context, data, value, done) {
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             done();
@@ -166,7 +168,7 @@ var configs = {
             if (!value) {
                 return done(null, 'Please select the make of your vehicle');
             }
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             done();
@@ -192,7 +194,7 @@ var configs = {
             if (!value) {
                 return done(null, 'Please select the model of your vehicle');
             }
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             done();
@@ -215,7 +217,7 @@ var configs = {
             if (!value) {
                 return done(null, 'Please select the condition of your vehicle');
             }
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             done();
@@ -229,7 +231,7 @@ var configs = {
             if (!value) {
                 return done(null, 'Please select the transmission of your vehicle');
             }
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             done();
@@ -243,7 +245,7 @@ var configs = {
             if (!value) {
                 return done(null, 'Please select the fuel of your vehicle');
             }
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             done();
@@ -257,7 +259,7 @@ var configs = {
             if (!value) {
                 return done(null, 'Please enter the color of your vehicle');
             }
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             $('input', source).val(value);
@@ -276,7 +278,7 @@ var configs = {
             if (!is.number(value)) {
                 return done(null, 'Please enter a valid number for the mileage of your vehicle');
             }
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             $('input', source).val(value);
@@ -295,7 +297,7 @@ var configs = {
             if (!is.number(value)) {
                 return done(null, 'Please enter a valid amount for the price of your vehicle');
             }
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             $('input', source).val(value);
@@ -307,7 +309,7 @@ var configs = {
             done(null, 'LKR');
         },
         validate: function (context, data, value, done) {
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             done();
@@ -318,7 +320,7 @@ var configs = {
             done(null, $('textarea', source).val());
         },
         validate: function (context, data, value, done) {
-            done();
+            done(null, null, value);
         },
         update: function (context, source, error, value, done) {
             done();
@@ -326,31 +328,13 @@ var configs = {
     }
 };
 
-var upload = function (data, files, elem, done) {
-    var xhr = $('.fileupload', elem).fileupload('send', {
-        paramName: 'photos',
-        files: files,
-        formData: {
-            data: JSON.stringify(data)
-        }
-    })
-    xhr.done(function (data, status, xhr) {
-        done();
-    }).fail(function (xhr, status, err) {
-        done(err);
-    }).always(function (data, status, xhr) {
-    });
-};
-
-var send = function (data, update, done) {
+var create = function (data, update, done) {
     $.ajax({
         url: AUTO_API + (update ? '/' + data.id : ''),
         type: update ? 'PUT' : 'POST',
-        contentType: 'multipart/form-data',
         dataType: 'json',
-        data: {
-            data: JSON.stringify(data)
-        },
+        contentType: 'application/json',
+        data: JSON.stringify(data),
         success: function (data) {
             done(null, data);
         },
@@ -385,7 +369,7 @@ var step = function (elem, button, name, next) {
     }
 };
 
-var add = function (id, update, vform, existing, pending, elem) {
+var add = function (id, update, vform, images, elem) {
     $('.help-block', elem).addClass('hidden');
     var add = $(this).attr('disabled', true);
     var spinner = $('.spinner', add).removeClass('hidden');
@@ -393,9 +377,7 @@ var add = function (id, update, vform, existing, pending, elem) {
         if (err) {
             return console.error(err);
         }
-        console.log('find');
-        console.log(data);
-        vform.validate(data, function (err, errors) {
+        vform.validate(data, function (err, errors, data) {
             if (err) {
                 return console.error(err);
             }
@@ -409,10 +391,9 @@ var add = function (id, update, vform, existing, pending, elem) {
                 return;
             }
             if (update) {
-                console.log(existing);
                 data.id = id;
-                data.photos = existing;
             }
+            data.images = _.values(images);
             vform.create(data, function (err, errors, data) {
                 if (err) {
                     return console.error(err);
@@ -435,13 +416,11 @@ var add = function (id, update, vform, existing, pending, elem) {
                     console.log('data updated/created successfully');
                     add.find('.content').text('Added');
                 };
-                pending.length ? upload(data, pending, elem, done) : send(data, update, done);
+                create(data, update, done);
             });
         });
     });
 };
-
-var modelSelect;
 
 var updateModels = function (ctx, elem, make, model, done) {
     ctx = ctx || {};
@@ -471,7 +450,13 @@ var updateModels = function (ctx, elem, make, model, done) {
 var render = function (ctx, sandbox, data, done) {
     var update = data._.update;
     var id = data.id;
-    var existing = data.photos || [];
+    var images = {};
+    var index = 0;
+    if (data.images) {
+        data.images.forEach(function (image) {
+            images[index++] = image;
+        });
+    }
     Make.find(function (err, makes) {
         if (err) {
             return done(err);
@@ -487,54 +472,63 @@ var render = function (ctx, sandbox, data, done) {
                 if (err) {
                     return done(err);
                 }
-                var el;
-                var pending = [];
-                // el = $('.year', elem);
-                // form.selectize(select(el, data.year || ''));
+                var later = null;
+                var pending = {};
+                var count = 0;
                 $('.fileupload', elem).fileupload({
-                    url: AUTO_API + (update ? '/' + data.id : ''),
-                    type: update ? 'PUT' : 'POST',
+                    url: BINARY_API,
+                    type: 'POST',
                     dataType: 'json',
-                    autoUpload: false,
+                    formData: [{
+                        name: 'data',
+                        value: JSON.stringify({
+                            type: 'image'
+                        })
+                    }],
                     acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
                     maxFileSize: 5000000, // 5 MB
                     disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
                     previewMaxWidth: 180,
                     previewMaxHeight: 120,
                     previewCrop: true
-                }).on('fileuploadadd', function (e, data) {
-                    data.context = $('<div class="col-md-3 file"></div>');
-                    $.each(data.files, function (index, file) {
-                        var length = pending.push(file);
-                        dust.render('vehicles-create-preview', {
-                            name: file.name,
-                            index: length - 1
-                        }, function (err, out) {
-                            if (err) {
-                                return console.error(err);
-                            }
-                            data.context.append(out);
-                            $('.files', elem).append(data.context);
-                        });
-                    });
-                }).on('fileuploadprocessalways', function (e, data) {
-                    var index = data.index;
-                    var file = data.files[index];
-                    var node = $(data.context.children()[index]);
-                    if (file.preview) {
-                        $('.thumbnail', data.context).append(file.preview);
-                    }
-                    if (file.error) {
-                        node.append('<br>').append($('<span class="text-danger"/>').text(file.error));
-                    }
-                }).on('fileuploadprogressall', function (e, data) {
-
                 }).on('fileuploaddone', function (e, data) {
-
-                }).on('fileuploadfail', function (e, data) {
-
+                    var file = data.files[0];
+                    var err = file.error;
+                    if (err) {
+                        return console.error(err);
+                    }
+                    images[data.index] = data.result.id;
+                    delete pending[data.index];
+                    count--;
+                    if (count === 0 && later) {
+                        later();
+                    }
+                    console.log('successfully uploaded %s', data.result.id);
+                }).on('fileuploadadd', function (e, data) {
+                    var file = data.files[0];
+                    data.context = $('<div class="col-md-3 file"></div>');
+                    data.index = index++;
+                    dust.render('vehicles-create-preview', {
+                        name: file.name,
+                        index: data.index
+                    }, function (err, out) {
+                        if (err) {
+                            return console.error(err);
+                        }
+                        data.context.append(out);
+                        $('.files', elem).append(data.context);
+                    });
+                    count++;
+                }).on('fileuploadprocessalways', function (e, data) {
+                    var file = data.files[0];
+                    var err = file.error;
+                    if (err) {
+                        return console.error(err);
+                    }
+                    $('.thumbnail', data.context).append(file.preview);
                 }).prop('disabled', !$.support.fileInput)
                     .parent().addClass($.support.fileInput ? undefined : 'disabled');
+
                 $('.next', elem).click(function (e) {
                     e.stopPropagation();
                     var context;
@@ -542,47 +536,59 @@ var render = function (ctx, sandbox, data, done) {
                     var name = thiz.data('step');
                     if (name === 'location') {
                         context = vform.context('location');
-                        context.eventer.emit('find', function (err, errors, data) {
+                        context.eventer.emit('find', function (err, data) {
                             if (err) {
                                 return console.error(err);
                             }
-                            context.eventer.emit('update', errors, data, function (err) {
+                            context.eventer.emit('validate', data, function (err, errors, data) {
                                 if (err) {
                                     return console.error(err);
                                 }
-                                if (errors) {
-                                    return;
-                                }
-                                context.eventer.emit('collapse', function (err) {
+                                context.eventer.emit('update', errors, data, function (err) {
                                     if (err) {
                                         return console.error(err);
                                     }
-                                    step(elem, thiz, 'vehicle', 'Add');
+                                    if (errors) {
+                                        return;
+                                    }
+                                    context.eventer.emit('collapse', function (err) {
+                                        if (err) {
+                                            return console.error(err);
+                                        }
+                                        step(elem, thiz, 'vehicle', 'Add');
+                                    });
                                 });
                             });
                         });
                         return false;
                     }
                     if (name === 'vehicle') {
-                        add(id, update, vform, existing, pending, elem);
-                        return false;
+                        var create = function () {
+                            add(id, update, vform, images, elem);
+                        };
+                        if (count > 0) {
+                            later = create;
+                            return;
+                        }
+                        return create();
                     }
-                    return false;
+                    console.error('unknown step: %s', name);
                 });
                 $('.delete', elem).click(function (e) {
                     e.stopPropagation();
                     remove(id, function (err) {
+                        if (err) {
+                            return console.error(err);
+                        }
                         console.log('data deleted successfully');
                     });
                     return false;
                 });
                 $(elem).on('click', '.remove-file', function () {
                     var el = $(this);
-                    if (el.hasClass('pending')) {
-                        pending.splice(el.data('index'), 1);
-                    } else {
-                        existing.splice(existing.indexOf(el.data('id')), 1);
-                    }
+                    var index = el.data('index');
+                    delete pending[index];
+                    delete images[index];
                     el.closest('.file').remove();
                     return false;
                 });

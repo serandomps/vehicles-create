@@ -149,11 +149,11 @@
                     <span class="form-control-feedback hidden"></span>
                     <span class="help-block hidden"></span>
                 </div>
-                <div class="form-group source photos has-feedback">
+                <div class="form-group source images has-feedback">
                 <span class="btn btn-success fileinput-button upload-button">
                     <span class="btn-icon"><i class="fa fa-plus"></i></span>
                     <span>Photos</span>
-                    <input type="file" multiple="" name="files[]" class="fileupload">
+                    <input type="file" multiple="" name="content" class="fileupload">
                 </span>
 
                     <!--<div id="progress" class="progress">
@@ -161,11 +161,11 @@
                     </div>-->
                     <div class="files row">
                         {#_.update}
-                        {#_.photos}
+                        {#_.images}
                         <div class="col-md-3 file">
                             {>"vehicles-create-preview"/}
                         </div>
-                        {/_.photos}
+                        {/_.images}
                         {/_.update}
                     </div>
                 </div>
