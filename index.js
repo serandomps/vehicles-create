@@ -600,7 +600,8 @@ var render = function (ctx, sandbox, data, done) {
     });
 };
 
-module.exports = function (ctx, sandbox, options, done) {
+module.exports = function (ctx, container, options, done) {
+    var sandbox = container.sandbox;
     options = options || {};
     var id = options.id;
     if (!id) {
