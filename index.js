@@ -9,11 +9,11 @@ var Binaries = require('service-binaries');
 var Make = require('vehicle-makes-service');
 var Model = require('vehicle-models-service');
 
-dust.loadSource(dust.compile(require('./preview'), 'vehicles-create-preview'));
 dust.loadSource(dust.compile(require('./template'), 'vehicles-create'));
 
-var BINARY_API = utils.resolve('accounts:///apis/v/binaries');
 var AUTO_API = utils.resolve('autos:///apis/v/vehicles');
+
+var resolution = '288x162';
 
 var configs = {
     type: {
@@ -343,7 +343,27 @@ var configs = {
         update: function (context, source, error, value, done) {
             done();
         }
-    }
+    },
+    images: {
+        find: function (context, source, done) {
+            serand.blocks('uploads', 'find', source, done);
+        },
+        validate: function (context, data, value, done) {
+            if (!value) {
+                return done(null, 'Please upload images of your vehicle');
+            }
+            done(null, null, value);
+        },
+        update: function (context, source, error, value, done) {
+            done();
+        },
+        render: function (ctx, vform, data, value, done) {
+            var el = $('.images', vform.elem);
+            serand.blocks('uploads', 'create', el, {
+                value: value
+            }, done);
+        }
+    },
 };
 
 var create = function (data, update, done) {
@@ -387,7 +407,7 @@ var step = function (elem, button, name, next) {
     }
 };
 
-var add = function (id, update, vform, images, elem) {
+var add = function (id, update, vform, elem) {
     $('.help-block', elem).addClass('hidden');
     var add = $(this).attr('disabled', true);
     var spinner = $('.spinner', add).removeClass('hidden');
@@ -411,7 +431,6 @@ var add = function (id, update, vform, images, elem) {
             if (update) {
                 data.id = id;
             }
-            data.images = _.values(images);
             vform.create(data, function (err, errors, data) {
                 if (err) {
                     return console.error(err);
@@ -471,18 +490,10 @@ var updateModels = function (ctx, elem, make, model, done) {
 var render = function (ctx, sandbox, data, done) {
     var id = data.id;
     var update = !!id;
-    var images = {};
-    var index = 0;
-    if (data.images) {
-        data.images.forEach(function (image) {
-            images[index++] = image;
-        });
-    }
     Make.find(function (err, makes) {
         if (err) {
             return done(err);
         }
-
         var makeData = [{label: 'Make', value: ''}];
         makeData = makeData.concat(_.map(makes, function (make) {
             return {
@@ -511,7 +522,7 @@ var render = function (ctx, sandbox, data, done) {
                 year--;
             }
 
-            data._ = {};
+            data._ = data._ || {};
             data._.makes = makeData;
             data._.models = modelData;
             data._.types = [
@@ -554,61 +565,7 @@ var render = function (ctx, sandbox, data, done) {
                         return done(err);
                     }
                     var later = null;
-                    var pending = {};
                     var count = 0;
-                    $('.fileupload', elem).fileupload({
-                        url: BINARY_API,
-                        type: 'POST',
-                        dataType: 'json',
-                        formData: [{
-                            name: 'data',
-                            value: JSON.stringify({
-                                type: 'image'
-                            })
-                        }],
-                        acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
-                        maxFileSize: 5000000, // 5 MB
-                        disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
-                        previewMaxWidth: 180,
-                        previewMaxHeight: 120,
-                        previewCrop: true
-                    }).on('fileuploaddone', function (e, data) {
-                        var file = data.files[0];
-                        var err = file.error;
-                        if (err) {
-                            return console.error(err);
-                        }
-                        images[data.index] = data.result.id;
-                        delete pending[data.index];
-                        count--;
-                        if (count === 0 && later) {
-                            later();
-                        }
-                        console.log('successfully uploaded %s', data.result.id);
-                    }).on('fileuploadadd', function (e, data) {
-                        var file = data.files[0];
-                        data.context = $('<div class="col-md-3 file"></div>');
-                        data.index = index++;
-                        dust.render('vehicles-create-preview', {
-                            name: file.name,
-                            index: data.index
-                        }, function (err, out) {
-                            if (err) {
-                                return console.error(err);
-                            }
-                            data.context.append(out);
-                            $('.files', elem).append(data.context);
-                        });
-                        count++;
-                    }).on('fileuploadprocessalways', function (e, data) {
-                        var file = data.files[0];
-                        var err = file.error;
-                        if (err) {
-                            return console.error(err);
-                        }
-                        $('.thumbnail', data.context).append(file.preview);
-                    }).prop('disabled', !$.support.fileInput)
-                        .parent().addClass($.support.fileInput ? undefined : 'disabled');
 
                     $('.next', elem).click(function (e) {
                         e.stopPropagation();
@@ -645,7 +602,7 @@ var render = function (ctx, sandbox, data, done) {
                         }
                         if (name === 'vehicle') {
                             var create = function () {
-                                add(id, update, vform, images, elem);
+                                add(id, update, vform, elem);
                             };
                             if (count > 0) {
                                 later = create;
@@ -663,14 +620,6 @@ var render = function (ctx, sandbox, data, done) {
                             }
                             console.log('data deleted successfully');
                         });
-                        return false;
-                    });
-                    $(elem).on('click', '.remove-file', function () {
-                        var el = $(this);
-                        var index = el.data('index');
-                        delete pending[index];
-                        delete images[index];
-                        el.closest('.file').remove();
                         return false;
                     });
                     done(null, function () {
@@ -694,7 +643,7 @@ module.exports = function (ctx, container, options, done) {
     }
     Vehicle.findOne({
         id: id,
-        images: '288x162'
+        resolution: resolution
     }, function (err, vehicle) {
         if (err) {
             return done(err);

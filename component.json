@@ -5,8 +5,7 @@
     "scripts": ["index.js"],
     "styles": ["styles.css"],
     "templates": [
-        "template.html",
-        "preview.html"
+        "template.html"
     ],
     "main": "index.js",
     "dependencies": {
