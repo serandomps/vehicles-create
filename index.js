@@ -4,6 +4,7 @@ var autils = require('autos-utils');
 var utils = require('utils');
 var form = require('form');
 var locate = require('locate');
+var contacts = require('contacts');
 var Vehicle = require('vehicles-service');
 var Binaries = require('service-binaries');
 var Make = require('vehicle-makes-service');
@@ -15,7 +16,7 @@ var AUTO_API = utils.resolve('autos:///apis/v/vehicles');
 
 var resolution = '288x162';
 
-var configs = {
+var vehicleConfigs = {
     type: {
         find: function (context, source, done) {
             serand.blocks('select', 'find', source, done);
@@ -36,7 +37,7 @@ var configs = {
             }, done);
         }
     },
-    contacts: {
+    /*contacts: {
         find: function (context, source, done) {
             done(null, {
                 email: 'user@serandives.com'
@@ -48,7 +49,7 @@ var configs = {
         update: function (context, source, error, value, done) {
             done();
         }
-    },
+    },*/
     manufacturedAt: {
         find: function (context, source, done) {
             serand.blocks('select', 'find', source, done);
@@ -67,43 +68,6 @@ var configs = {
             serand.blocks('select', 'create', el, {
                 value: value ? moment(value).year() : ''
             }, done);
-        }
-    },
-    location: {
-        find: function (context, source, done) {
-            context.eventer.emit('find', done);
-        },
-        validate: function (context, data, value, done) {
-            if (!value) {
-                return done(null, 'Please select the location of your vehicle');
-            }
-            context.eventer.emit('validate', value, done);
-        },
-        update: function (context, source, error, value, done) {
-            context.eventer.emit('update', error, value, done);
-        },
-        render: function (ctx, vform, data, value, done) {
-            var options = _.isString(value) ? {user: data.user, location: value} : value;
-            locate({}, $('.location', vform.elem), options, function (err, eventer) {
-                if (err) {
-                    return done(err);
-                }
-                eventer.on('change', function (location, done) {
-                    var button = $('.next', vform.elem);
-                    if (!location) {
-                        step(vform.elem, button, 'location', 'Next');
-                        return done();
-                    }
-                    step(vform.elem, button, 'vehicle', 'Add');
-                    done();
-                });
-                done(null, {eventer: eventer});
-            });
-        },
-        create: function (context, value, done) {
-            context.eventer.emit('create', value, function (err, errors, location) {
-                done(err, errors, location);
-            });
         }
     },
     doors: {
@@ -366,10 +330,74 @@ var configs = {
     },
 };
 
-var create = function (data, update, done) {
+var contactsConfigs = {
+    'contacts': {
+        find: function (context, source, done) {
+            context.pick = $('input:checked', source).val();
+            if (context.pick === 'you') {
+                return done();
+            }
+            context.contacts.find(done);
+        },
+        validate: function (context, data, value, done) {
+            if (context.pick === 'you') {
+                return done();
+            }
+            context.contacts.validate(value, done);
+        },
+        update: function (context, source, error, value, done) {
+            if (context.pick === 'you') {
+                return done(null, null, value);
+            }
+            context.contacts.update(error, value, done);
+        },
+        render: function (ctx, cform, data, value, done) {
+            var el = $(cform.elem).find('> .contacts');
+            var context = {};
+            serand.blocks('radios', 'create', el, {
+                value: value ? 'other' : 'you',
+                change: function () {
+                    cform.find(function (err, o) {
+                        if (err) {
+                            return done(err);
+                        }
+                        var source = $(cform.elem).find('> .sandbox');
+                        context.pick = o.contacts ? 'other' : 'you';
+                        if (context.pick === 'you') {
+                            return source.addClass('hidden');
+                        }
+                        source.removeClass('hidden');
+                    });
+                }
+            }, function (err) {
+                if (err) {
+                    return done(err);
+                }
+                contacts(ctx, {
+                    id: cform.id,
+                    sandbox: $(cform.elem).find('> .sandbox')
+                }, {
+                    required: true,
+                    contacts: value
+                }, function (err, o) {
+                    if (err) {
+                        return done(err);
+                    }
+                    context.contacts = o;
+                    if (value) {
+                        $(cform.elem).find('> .sandbox').removeClass('hidden');
+                    }
+                    done(null, context);
+                });
+            });
+        }
+    }
+};
+
+var create = function (id, data, done) {
     $.ajax({
-        url: AUTO_API + (update ? '/' + data.id : ''),
-        type: update ? 'PUT' : 'POST',
+        url: AUTO_API + (id ? '/' + id : ''),
+        type: id ? 'PUT' : 'POST',
         dataType: 'json',
         contentType: 'application/json',
         data: JSON.stringify(data),
@@ -392,70 +420,6 @@ var remove = function (id, done) {
         error: function (xhr, status, err) {
             done(err || status || xhr);
         }
-    });
-};
-
-var step = function (elem, button, name, next) {
-    button.find('.content').text(next);
-    button.data('step', name);
-    if (name === 'location') {
-        $('.step-vehicle', elem).addClass('hidden');
-        return;
-    }
-    if (name === 'vehicle') {
-        $('.step-' + name, elem).removeClass('hidden');
-    }
-};
-
-var add = function (id, update, vform, elem) {
-    $('.help-block', elem).addClass('hidden');
-    var add = $(this).attr('disabled', true);
-    var spinner = $('.spinner', add).removeClass('hidden');
-    vform.find(function (err, data) {
-        if (err) {
-            return console.error(err);
-        }
-        vform.validate(data, function (err, errors, data) {
-            if (err) {
-                return console.error(err);
-            }
-            if (errors) {
-                vform.update(errors, data, function (err) {
-                    if (err) {
-                        return console.error(err);
-                    }
-                    add.removeAttr('disabled');
-                });
-                return;
-            }
-            if (update) {
-                data.id = id;
-            }
-            vform.create(data, function (err, errors, data) {
-                if (err) {
-                    return console.error(err);
-                }
-                if (errors) {
-                    vform.update(errors, data, function (err) {
-                        if (err) {
-                            return console.error(err);
-                        }
-                        add.removeAttr('disabled');
-                    });
-                    return;
-                }
-                var done = function (err) {
-                    spinner.addClass('hidden');
-                    if (err) {
-                        console.error('error while updating/creating the vehicle');
-                        return add.removeAttr('disabled');
-                    }
-                    console.log('data updated/created successfully');
-                    add.find('.content').text('Added');
-                };
-                create(data, update, done);
-            });
-        });
     });
 };
 
@@ -487,9 +451,32 @@ var updateModels = function (ctx, elem, make, model, done) {
     });
 };
 
-var render = function (ctx, sandbox, data, done) {
+var runHandler = function (handler, done) {
+    handler.find(function (err, o) {
+        if (err) {
+            return done(err);
+        }
+        handler.validate(o, function (err, errors, o) {
+            if (err) {
+                return done(err);
+            }
+            handler.update(errors, o, function (err) {
+                if (err) {
+                    return done(err);
+                }
+                if (errors) {
+                    return done(null, errors);
+                }
+                done(null, null, o);
+            });
+        });
+    });
+};
+
+var render = function (ctx, container, data, done) {
     var id = data.id;
     var update = !!id;
+    var sandbox = container.sandbox;
     Make.find(function (err, makes) {
         if (err) {
             return done(err);
@@ -554,76 +541,98 @@ var render = function (ctx, sandbox, data, done) {
                 {label: 'Hybrid', value: 'hybrid'},
                 {label: 'Electric', value: 'electric'}
             ];
+            data._.contacts = [
+                {label: 'You', value: 'you'},
+                {label: 'Other', value: 'other'}
+            ];
             dust.render('vehicles-create', data, function (err, out) {
                 if (err) {
                     return done(err);
                 }
                 var elem = sandbox.append(out);
-                var vform = form.create(elem, configs);
-                vform.render(ctx, data, function (err) {
+                var handlers = {};
+                var vehicleForm = form.create(container.id, $('.tab-pane[data-name="vehicle"] .step', elem), vehicleConfigs);
+                handlers.vehicle = vehicleForm;
+                vehicleForm.render(ctx, data, function (err) {
                     if (err) {
                         return done(err);
                     }
-                    var later = null;
-                    var count = 0;
-
-                    $('.next', elem).click(function (e) {
-                        e.stopPropagation();
-                        var context;
-                        var thiz = $(this);
-                        var name = thiz.data('step');
-                        if (name === 'location') {
-                            context = vform.context('location');
-                            context.eventer.emit('find', function (err, data) {
-                                if (err) {
-                                    return console.error(err);
-                                }
-                                context.eventer.emit('validate', data, function (err, errors, data) {
-                                    if (err) {
-                                        return console.error(err);
-                                    }
-                                    context.eventer.emit('update', errors, data, function (err) {
+                    locate(ctx, {
+                        id: container.id,
+                        sandbox: $('.tab-pane[data-name="location"] .step', elem)
+                    }, {
+                        required: true,
+                        location: data.location
+                    }, function (err, o) {
+                        if (err) {
+                            return done(err);
+                        }
+                        handlers.location = o;
+                        var contactsEl = $('.tab-pane[data-name="contacts"] .step', elem);
+                        var contactForm = form.create(container.id, contactsEl, contactsConfigs);
+                        contactForm.render(ctx, {
+                            contacts: data.contacts
+                        }, function (err) {
+                            if (err) {
+                                return done(err);
+                            }
+                            handlers.contacts = contactForm;
+                            serand.blocks('steps', 'create', elem, {
+                                step: function (from, done) {
+                                    runHandler(handlers[from], done);
+                                },
+                                create: function (elem) {
+                                    runHandler(handlers.vehicle, function (err, errors, vehicle) {
                                         if (err) {
                                             return console.error(err);
                                         }
                                         if (errors) {
                                             return;
                                         }
-                                        context.eventer.emit('collapse', function (err) {
+                                        runHandler(handlers.location, function (err, errors, loc) {
                                             if (err) {
                                                 return console.error(err);
                                             }
-                                            step(elem, thiz, 'vehicle', 'Add');
+                                            if (errors) {
+                                                return;
+                                            }
+                                            vehicle.location = loc.location;
+                                            runHandler(handlers.contacts, function (err, errors, con) {
+                                                if (err) {
+                                                    return console.error(err);
+                                                }
+                                                if (errors) {
+                                                    return;
+                                                }
+                                                vehicle.contacts = con.contacts;
+                                                create(id, vehicle, function (err) {
+                                                    if (err) {
+                                                        return console.error(err);
+                                                    }
+                                                });
+                                            });
                                         });
                                     });
+                                }
+                            }, function (err) {
+                                if (err) {
+                                    return done(err);
+                                }
+                                $('.delete', elem).click(function (e) {
+                                    e.stopPropagation();
+                                    remove(id, function (err) {
+                                        if (err) {
+                                            return console.error(err);
+                                        }
+                                        console.log('data deleted successfully');
+                                    });
+                                    return false;
+                                });
+                                done(null, function () {
+                                    $('.vehicles-create', sandbox).remove();
                                 });
                             });
-                            return false;
-                        }
-                        if (name === 'vehicle') {
-                            var create = function () {
-                                add(id, update, vform, elem);
-                            };
-                            if (count > 0) {
-                                later = create;
-                                return;
-                            }
-                            return create();
-                        }
-                        console.error('unknown step: %s', name);
-                    });
-                    $('.delete', elem).click(function (e) {
-                        e.stopPropagation();
-                        remove(id, function (err) {
-                            if (err) {
-                                return console.error(err);
-                            }
-                            console.log('data deleted successfully');
                         });
-                        return false;
-                    });
-                    done(null, function () {
-                        $('.vehicles-create', sandbox).remove();
                     });
                 });
             });
@@ -632,12 +641,13 @@ var render = function (ctx, sandbox, data, done) {
 };
 
 module.exports = function (ctx, container, options, done) {
-    var sandbox = container.sandbox;
     options = options || {};
     var id = options.id;
     if (!id) {
-        render(ctx, sandbox, {
-            _: {}
+        render(ctx, container, {
+            _: {
+                container: container.id
+            }
         }, done);
         return;
     }
@@ -648,6 +658,7 @@ module.exports = function (ctx, container, options, done) {
         if (err) {
             return done(err);
         }
-        render(ctx, sandbox, vehicle, done);
+        vehicle._.container = container.id;
+        render(ctx, container, vehicle, done);
     });
 };

@@ -1,35 +1,26 @@
-<div class="vehicles-create card">
-    <div class="card-header">{?id}Edit{:else}Add{/id} Vehicle</div>
-    <div class="card-body">
-        <form role="form" class="auto-create">
-            {#.}
-            <div class="step-location">
-                <div class="form-group source location has-feedback" data-name="location"></div>
-            </div>
-            <div class="step-vehicle">
-                {@blocks block="select" id=id name="type" label="Type" value=type options=_.types/}
-                {@blocks block="select" id=id name="make" label="Make" value=make options=_.makes/}
-                {@blocks block="select" id=id name="model" label="Model" value=model options=_.models/}
-                {@blocks block="select" id=id name="manufacturedAt" label="Year" value=manufacturedAt options=_.manufacturedAt/}
-                {@blocks block="radios" id=id name="condition" value=condition options=_.conditions label="Condition"/}
-                {@blocks block="radios" id=id name="transmission" value=transmission options=_.transmissions label="Transmission"/}
-                {@blocks block="radios" id=id name="fuel" value=fuel options=_.fuels label="Fuel"/}
-                {@blocks block="text" id=id name="color" help="Color" value=color label="Color"/}
-                {@blocks block="text" id=id name="mileage" help="Mileage" value=mileage label="Mileage"/}
-                {@blocks block="text" id=id name="price" help="Price" value=price label="Price"/}
-                {@blocks block="textarea" id=id name="description" help="Description" rows=6 value=description label="Description"/}
-                {@blocks block="uploads" id=id name="images" help="Photos" value=_.images size=3 label="Photos"/}
-            </div>
-            {/.}
-            <div class="form-group">
-                <button type="button" class="btn btn-success next" data-step="vehicle">
-                    <span class="btn-icon hidden"><i class="fas fa-spinner fa-spin"></i> </span>
-                    <span class="content">{?_.update}Save{:else}Add{/_.update}</span>
-                </button>
-                {?_.update}
-                <button type="button" class="btn btn-danger delete">Delete</button>
-                {/_.update}
-            </div>
-        </form>
-    </div>
+<div class="vehicles-create">
+    <h1 class="title text-center">{?id}{_.make.title} {_.model.title} {manufacturedAt|year}{:else}Create your vehicle{/id}</h1>
+    <form role="form">
+        {@steps}
+            {@step name="vehicle" title="Vehicle" icon="fa-car" active="true"}
+                {@blocks block="select" id=_.container name="type" label="Type" options=_.types/}
+                {@blocks block="select" id=_.container name="make" label="Make" options=_.makes/}
+                {@blocks block="select" id=_.container name="model" label="Model" options=_.models/}
+                {@blocks block="select" id=_.container name="manufacturedAt" label="Year" options=_.manufacturedAt/}
+                {@blocks block="radios" id=_.container name="condition" options=_.conditions label="Condition"/}
+                {@blocks block="radios" id=_.container name="transmission" options=_.transmissions label="Transmission"/}
+                {@blocks block="radios" id=_.container name="fuel" options=_.fuels label="Fuel"/}
+                {@blocks block="text" id=_.container name="color" help="Color" value=color label="Color"/}
+                {@blocks block="text" id=_.container name="mileage" help="Mileage" value=mileage label="Mileage"/}
+                {@blocks block="text" id=_.container name="price" help="Price" value=price label="Price"/}
+                {@blocks block="textarea" id=_.container name="description" help="Description" rows=6 value=description label="Description"/}
+                {@blocks block="uploads" id=_.container name="images" help="Photos" value=_.images size=3 label="Photos"/}
+            {/step}
+            {@step name="location" title="Location" icon="fa-map-marker-alt"}{/step}
+            {@step name="contacts" title="Contacts" icon="fa-phone"}
+                {@blocks block="radios" id=_.container name="contacts" options=_.contacts label="Who needs to be contacted"/}
+                <div class="sandbox hidden"></div>
+            {/step}
+        {/steps}
+    </form>
 </div>
