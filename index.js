@@ -37,19 +37,6 @@ var vehicleConfigs = {
             }, done);
         }
     },
-    /*contacts: {
-        find: function (context, source, done) {
-            done(null, {
-                email: 'user@serandives.com'
-            });
-        },
-        validate: function (context, data, value, done) {
-            done(null, null, value);
-        },
-        update: function (context, source, error, value, done) {
-            done();
-        }
-    },*/
     manufacturedAt: {
         find: function (context, source, done) {
             serand.blocks('select', 'find', source, done);
@@ -451,7 +438,7 @@ var updateModels = function (ctx, elem, make, model, done) {
     });
 };
 
-var runHandler = function (handler, done) {
+var stepHandler = function (handler, done) {
     handler.find(function (err, o) {
         if (err) {
             return done(err);
@@ -471,6 +458,18 @@ var runHandler = function (handler, done) {
             });
         });
     });
+};
+
+var createHandler = function (handler, done) {
+  stepHandler(handler, function (err, errors, o) {
+      if (err) {
+          return done(err);
+      }
+      if (errors) {
+          return done(null, errors);
+      }
+      handler.create(o, done);
+  })
 };
 
 var render = function (ctx, container, data, done) {
@@ -562,49 +561,55 @@ var render = function (ctx, container, data, done) {
                         sandbox: $('.tab-pane[data-name="location"] .step', elem)
                     }, {
                         required: true,
+                        label: 'Location of the vehicle',
                         location: data.location
                     }, function (err, o) {
                         if (err) {
                             return done(err);
                         }
                         handlers.location = o;
-                        var contactsEl = $('.tab-pane[data-name="contacts"] .step', elem);
-                        var contactForm = form.create(container.id, contactsEl, contactsConfigs);
-                        contactForm.render(ctx, {
-                            contacts: data.contacts
-                        }, function (err) {
+
+                        contacts(ctx, {
+                            id: container.id,
+                            sandbox: $('.tab-pane[data-name="contact"] .step', elem)
+                        }, {
+                            required: true,
+                            label: 'Contacts for further details',
+                            contact: data.contact
+                        }, function (err, o) {
                             if (err) {
                                 return done(err);
                             }
-                            handlers.contacts = contactForm;
+                            handlers.contact = o;
+
                             serand.blocks('steps', 'create', elem, {
                                 step: function (from, done) {
-                                    runHandler(handlers[from], done);
+                                    stepHandler(handlers[from], done);
                                 },
                                 create: function (elem) {
-                                    runHandler(handlers.vehicle, function (err, errors, vehicle) {
+                                    createHandler(handlers.vehicle, function (err, errors, vehicle) {
                                         if (err) {
                                             return console.error(err);
                                         }
                                         if (errors) {
                                             return;
                                         }
-                                        runHandler(handlers.location, function (err, errors, loc) {
+                                        createHandler(handlers.location, function (err, errors, location) {
                                             if (err) {
                                                 return console.error(err);
                                             }
                                             if (errors) {
                                                 return;
                                             }
-                                            vehicle.location = loc.location;
-                                            runHandler(handlers.contacts, function (err, errors, con) {
+                                            vehicle.location = location;
+                                            createHandler(handlers.contact, function (err, errors, contact) {
                                                 if (err) {
                                                     return console.error(err);
                                                 }
                                                 if (errors) {
                                                     return;
                                                 }
-                                                vehicle.contacts = con.contacts;
+                                                vehicle.contact = contact;
                                                 create(id, vehicle, function (err) {
                                                     if (err) {
                                                         return console.error(err);
