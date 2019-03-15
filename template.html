@@ -1,23 +1,21 @@
-<div class="vehicles-create">
-    <h1 class="title text-center">{?id}{_.make.title} {_.model.title} {manufacturedAt|year}{:else}Create your vehicle{/id}</h1>
-    <form role="form">
-        {@steps}
-            {@step name="vehicle" title="Vehicle" icon="fa-car" active="true"}
-                {@blocks block="select" id=_.container name="type" label="Type" options=_.types/}
-                {@blocks block="select" id=_.container name="make" label="Make" options=_.makes/}
-                {@blocks block="select" id=_.container name="model" label="Model" options=_.models/}
-                {@blocks block="select" id=_.container name="manufacturedAt" label="Year" options=_.manufacturedAt/}
-                {@blocks block="radios" id=_.container name="condition" options=_.conditions label="Condition"/}
-                {@blocks block="radios" id=_.container name="transmission" options=_.transmissions label="Transmission"/}
-                {@blocks block="radios" id=_.container name="fuel" options=_.fuels label="Fuel"/}
-                {@blocks block="text" id=_.container name="color" help="Color" value=color label="Color"/}
-                {@blocks block="text" id=_.container name="mileage" help="Mileage" value=mileage label="Mileage"/}
-                {@blocks block="text" id=_.container name="price" help="Price" value=price label="Price"/}
-                {@blocks block="textarea" id=_.container name="description" help="Description" rows=6 value=description label="Description"/}
-                {@blocks block="uploads" id=_.container name="images" help="Photos" value=_.images size=3 label="Photos"/}
-            {/step}
-            {@step name="location" title="Location" icon="fa-map-marker-alt"}{/step}
-            {@step name="contact" title="Contacts" icon="fa-phone"}{/step}
-        {/steps}
-    </form>
-</div>
+<h1 class="title text-center">{?id}{_.make.title} {_.model.title} {manufacturedAt|year}{:else}Create your vehicle{/id}</h1>
+<form role="form">
+    {@steps}
+        {@step name="vehicle" title="Vehicle" icon="fa-car" active="true"}
+            {@blocks block="select" id=_.container name="type" label="Type" options=_.types/}
+            {@blocks block="select" id=_.container name="make" label="Make" options=_.makes/}
+            {@blocks block="select" id=_.container name="model" label="Model" options=_.models/}
+            {@blocks block="select" id=_.container name="manufacturedAt" label="Year" options=_.manufacturedAt/}
+            {@blocks block="radios" id=_.container name="condition" options=_.conditions label="Condition"/}
+            {@blocks block="radios" id=_.container name="transmission" options=_.transmissions label="Transmission"/}
+            {@blocks block="radios" id=_.container name="fuel" options=_.fuels label="Fuel"/}
+            {@blocks block="select" id=_.container name="color" help="Color" options=_.color label="Color"/}
+            {@blocks block="text" id=_.container name="mileage" help="Mileage" value=mileage label="Mileage"/}
+            {@blocks block="text" id=_.container name="price" help="Price" value=price label="Price"/}
+            {@blocks block="textarea" id=_.container name="description" help="Description" rows=6 value=description label="Description"/}
+            {@blocks block="uploads" id=_.container name="images" help="Photos" value=_.images size=3 label="Photos"/}
+        {/step}
+        {@step name="location" title="Location" icon="fa-map-marker-alt"}{/step}
+        {@step name="contact" title="Contacts" icon="fa-phone"}{/step}
+    {/steps}
+</form>

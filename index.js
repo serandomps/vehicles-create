@@ -222,7 +222,7 @@ var vehicleConfigs = {
     },
     color: {
         find: function (context, source, done) {
-            done(null, $('input', source).val());
+            serand.blocks('select', 'find', source, done);
         },
         validate: function (context, data, value, done) {
             if (!value) {
@@ -231,8 +231,13 @@ var vehicleConfigs = {
             done(null, null, value);
         },
         update: function (context, source, error, value, done) {
-            $('input', source).val(value);
             done();
+        },
+        render: function (ctx, vform, data, value, done) {
+            var el = $('.color', vform.elem);
+            serand.blocks('select', 'create', el, {
+                value: value
+            }, done);
         }
     },
     mileage: {
@@ -315,70 +320,6 @@ var vehicleConfigs = {
             }, done);
         }
     },
-};
-
-var contactsConfigs = {
-    'contacts': {
-        find: function (context, source, done) {
-            context.pick = $('input:checked', source).val();
-            if (context.pick === 'you') {
-                return done();
-            }
-            context.contacts.find(done);
-        },
-        validate: function (context, data, value, done) {
-            if (context.pick === 'you') {
-                return done();
-            }
-            context.contacts.validate(value, done);
-        },
-        update: function (context, source, error, value, done) {
-            if (context.pick === 'you') {
-                return done(null, null, value);
-            }
-            context.contacts.update(error, value, done);
-        },
-        render: function (ctx, cform, data, value, done) {
-            var el = $(cform.elem).find('> .contacts');
-            var context = {};
-            serand.blocks('radios', 'create', el, {
-                value: value ? 'other' : 'you',
-                change: function () {
-                    cform.find(function (err, o) {
-                        if (err) {
-                            return done(err);
-                        }
-                        var source = $(cform.elem).find('> .sandbox');
-                        context.pick = o.contacts ? 'other' : 'you';
-                        if (context.pick === 'you') {
-                            return source.addClass('hidden');
-                        }
-                        source.removeClass('hidden');
-                    });
-                }
-            }, function (err) {
-                if (err) {
-                    return done(err);
-                }
-                contacts(ctx, {
-                    id: cform.id,
-                    sandbox: $(cform.elem).find('> .sandbox')
-                }, {
-                    required: true,
-                    contacts: value
-                }, function (err, o) {
-                    if (err) {
-                        return done(err);
-                    }
-                    context.contacts = o;
-                    if (value) {
-                        $(cform.elem).find('> .sandbox').removeClass('hidden');
-                    }
-                    done(null, context);
-                });
-            });
-        }
-    }
 };
 
 var create = function (id, data, done) {
@@ -474,7 +415,6 @@ var createHandler = function (handler, done) {
 
 var render = function (ctx, container, data, done) {
     var id = data.id;
-    var update = !!id;
     var sandbox = container.sandbox;
     Make.find(function (err, makes) {
         if (err) {
@@ -543,6 +483,18 @@ var render = function (ctx, container, data, done) {
             data._.contacts = [
                 {label: 'You', value: 'you'},
                 {label: 'Other', value: 'other'}
+            ];
+            data._.color = [
+                {label: 'Color', value: ''},
+                {label: 'Black', value: 'black'},
+                {label: 'Blue', value: 'blue'},
+                {label: 'Brown', value: 'brown'},
+                {label: 'Green', value: 'green'},
+                {label: 'Orange', value: 'orange'},
+                {label: 'Red', value: 'red'},
+                {label: 'Silver', value: 'silver'},
+                {label: 'White', value: 'white'},
+                {label: 'Yellow', value: 'yellow'}
             ];
             dust.render('vehicles-create', data, function (err, out) {
                 if (err) {
