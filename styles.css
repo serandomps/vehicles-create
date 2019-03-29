@@ -1,37 +1,37 @@
-.vehicles-create .title {
+.sandbox-vehicles-create .title {
     font-weight: bold;
     font-size: 2em;
 }
 
-.vehicles-create .form-control1 {
+.sandbox-vehicles-create .form-control1 {
     margin-bottom: 10px;
 }
 
-.vehicles-create .control-label {
+.sandbox-vehicles-create .control-label {
     margin-bottom: 4px;
 }
 
-.vehicles-create .fileinput-button {
+.sandbox-vehicles-create .fileinput-button {
     margin-bottom: 10px;
 }
 
-.vehicles-create .files .filename {
+.sandbox-vehicles-create .files .filename {
     overflow: hidden;
 }
 
-.vehicles-create .files .info {
+.sandbox-vehicles-create .files .info {
     margin-bottom: 2px;
 }
 
-.vehicles-create .files .thumbnail {
+.sandbox-vehicles-create .files .thumbnail {
     text-align: center;
 }
 
-.vehicles-create .btn.next {
+.sandbox-vehicles-create .btn.next {
     margin-right: 5px;
 }
 
-.vehicles-create .remove-file {
+.sandbox-vehicles-create .remove-file {
     position: absolute;
     top: 5px;
     right: 5px;

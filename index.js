@@ -3,7 +3,7 @@ var serand = require('serand');
 var autils = require('autos-utils');
 var utils = require('utils');
 var form = require('form');
-var locate = require('locate');
+var locations = require('locations');
 var contacts = require('contacts');
 var Vehicle = require('vehicles-service');
 var Binaries = require('service-binaries');
@@ -508,7 +508,7 @@ var render = function (ctx, container, data, done) {
                     if (err) {
                         return done(err);
                     }
-                    locate(ctx, {
+                    locations.picker(ctx, {
                         id: container.id,
                         sandbox: $('.tab-pane[data-name="location"] .step', elem)
                     }, {
@@ -521,7 +521,7 @@ var render = function (ctx, container, data, done) {
                         }
                         handlers.location = o;
 
-                        contacts(ctx, {
+                        contacts.picker(ctx, {
                             id: container.id,
                             sandbox: $('.tab-pane[data-name="contact"] .step', elem)
                         }, {
