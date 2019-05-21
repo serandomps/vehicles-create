@@ -298,6 +298,12 @@ var vehicleConfigs = {
         },
         update: function (context, source, error, value, done) {
             done();
+        },
+        render: function (ctx, vform, data, value, done) {
+            var el = $('.description', vform.elem);
+            serand.blocks('textarea', 'create', el, {
+                value: value
+            }, done);
         }
     },
     images: {
@@ -323,6 +329,16 @@ var vehicleConfigs = {
 };
 
 var create = function (id, data, done) {
+    serand.emit('loader', 'start', {
+        name: 'autos-navigation',
+        delay: 500
+    });
+    var end = function (err, data) {
+        serand.emit('loader', 'end', {
+            name: 'autos-navigation'
+        });
+        done(err, data);
+    };
     $.ajax({
         url: AUTO_API + (id ? '/' + id : ''),
         type: id ? 'PUT' : 'POST',
@@ -330,10 +346,10 @@ var create = function (id, data, done) {
         contentType: 'application/json',
         data: JSON.stringify(data),
         success: function (data) {
-            done(null, data);
+            end(null, data);
         },
         error: function (xhr, status, err) {
-            done(err || status || xhr);
+            end(err || status || xhr);
         }
     });
 };
@@ -474,11 +490,11 @@ var render = function (ctx, container, data, done) {
                 {label: 'Manumatic', value: 'manumatic'}
             ];
             data._.fuels = [
-                {label: 'None', value: 'none'},
                 {label: 'Petrol', value: 'petrol'},
                 {label: 'Diesel', value: 'diesel'},
                 {label: 'Hybrid', value: 'hybrid'},
-                {label: 'Electric', value: 'electric'}
+                {label: 'Electric', value: 'electric'},
+                {label: 'None', value: 'none'}
             ];
             data._.contacts = [
                 {label: 'You', value: 'you'},
@@ -566,6 +582,7 @@ var render = function (ctx, container, data, done) {
                                                     if (err) {
                                                         return console.error(err);
                                                     }
+                                                    serand.redirect('/mine');
                                                 });
                                             });
                                         });
